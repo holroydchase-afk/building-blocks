@@ -3,10 +3,9 @@
 stage: review
 goal: building-blocks
 milestone: CL-M1
-now: /native and /platform layers built and green (345 tests, strict lint, Storybook builds); first PR waiting on a base branch (main is empty)
-next: Chase says go to seed `main` with a starting commit; then open the first PR from claude/project-thread-i3w0mu; then 1c /platform and 1h /chat
-waiting_on_chase:
-  - Go to put a starting commit (LICENSE, short README) on main so the first PR has a base
+now: /native and /platform layers built and green (345 tests, strict lint, Storybook builds); PR 1 open (main seeded with the licence)
+next: merge PR 1 on green; then /app-kit, /chat and create-app
+waiting_on_chase: []
 blockers: []
 -->
 ## Done
@@ -30,4 +29,4 @@ Seed `main`, open the first PR, merge on green. Then: `/app-kit`, `/chat` (regis
 - Platform follow-ups: PS-R2 keychain accessibility option, PS-R3 whole-operation lock and key-name escaping, PS-R4 rename or warn for the web twin, PS-R5 bytes doc note, CI dependency scanning.
 
 ## Blockers
-- None except the base branch.
+- None.

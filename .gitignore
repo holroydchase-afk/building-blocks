@@ -4,3 +4,4 @@ coverage/
 .expo/
 dist/
 *.log
+!.claude/agent-runs/*.log
