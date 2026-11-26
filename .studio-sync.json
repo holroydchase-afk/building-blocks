@@ -1,0 +1,168 @@
+{
+  "sha": "62b98e31d1f3eda8679eaefacd97f3c40e30f8a0",
+  "syncedAt": "2026-11-26T03:49:17.768Z",
+  "files": {
+    "scripts/agent-guard.mjs": {
+      "hash": "62e1e2dfcddc8de6012607936523a04d7ffcf7fc11396078ebf285390aec76eb"
+    },
+    "scripts/agent-memory.mjs": {
+      "hash": "b05158b8dbcc6592196dbb2121388bcc606440b34e97b41348c7ceed0c3b8397"
+    },
+    "scripts/agent-scorecard.mjs": {
+      "hash": "aa5e3f4cbb6d0daa70bf27af586d8072b5d69512d24c1280814a18d7ada8bae6"
+    },
+    "scripts/check-agent-run.mjs": {
+      "hash": "4e06e6131cea7d1990d166a39b42bdc13a02e610472c8a119b22eb13b35d392b"
+    },
+    "scripts/check-findings.mjs": {
+      "hash": "394e3085130f7020278b8e02cb0bd1e3560ac100fae1fc07b95f7765a4829ced"
+    },
+    "scripts/check-private.mjs": {
+      "hash": "32fadd3893c5b282fa24d44d5905f3b97d15ff8f812ad85f0b17fcda122fe343"
+    },
+    "scripts/check-qa-report.mjs": {
+      "hash": "9b7f0ecd408166077e1f9b83b828de8882ed92219d45340f55f0049598ebb8dd"
+    },
+    "scripts/check-spec.mjs": {
+      "hash": "b7887f570f5ad33c867dc57f52e020a4c11184621e7995d6be7825a3f35d48bd"
+    },
+    "scripts/check-story-entry.mjs": {
+      "hash": "1f7d7d24f87e3563d35ea6e25a2619b0efda87b36e8874286f9b12d45efc3116"
+    },
+    "scripts/check-triage.mjs": {
+      "hash": "2056ca8f7277b37f0b22d9de290f006c088e145c731e005b4ab9c8ad2e4df80e"
+    },
+    "scripts/check-ux-run.mjs": {
+      "hash": "559a803330c8ed83c007f9fe1104091663db762249796f1851a9b492b2145af1"
+    },
+    "scripts/eval-miss-cases.mjs": {
+      "hash": "ada0efd387386ba32b030a8e890e37b59340fb61a415954bd3304e50f0819263"
+    },
+    "scripts/eval-miss-score.mjs": {
+      "hash": "68a0b1535d0cc8120ab024efc41c84241e441fcc23bd0b4e2a074685233af432"
+    },
+    "scripts/eval-pipeline.mjs": {
+      "hash": "2a9f53941576f2e2b9b5af41bb84c807f86a9a90e4c1f1e944cbff1f79aa9bba"
+    },
+    "scripts/eval-protocol.mjs": {
+      "hash": "6f07ca3da34b72ba4acea54e107b16e955a2a3e0589e7a1e43aaa6c3eebcabe3"
+    },
+    "scripts/feedback-guard.mjs": {
+      "hash": "08047ccfadab44348e95636ac24243da55042ccbfea540d9007ad438f8b9a51a"
+    },
+    "scripts/feedback-merge-check.mjs": {
+      "hash": "3fd1b376e5e172f0ef3a37a6e6aa8bd72ab6927cfd47817c16d2c3253fa38dc9"
+    },
+    "scripts/pipeline-run.mjs": {
+      "hash": "4b178f38ae1822914da396276536c72490bd71ece3328f6777286a52d88d0d2b"
+    },
+    "scripts/portfolio-drift.mjs": {
+      "hash": "ea80279bc8859b9e45d685de4c933f106bd604e383ab96856a38fde29aeb6e54"
+    },
+    "scripts/product-review.mjs": {
+      "hash": "606d5b50a20edd554f17f5e989d171a1b8b95615af1f2eb1856d1c69a88c281f"
+    },
+    "scripts/qa-cycle.mjs": {
+      "hash": "81caeca4c0969525d8ad527359a4ed1abb257f8e3cb2e804e84917706b3b8daa"
+    },
+    "scripts/qa-run3.mjs": {
+      "hash": "d9fa2b66de545fb875499bcd59f427c2444b27a05b929c3216f917fa73fdbd1c"
+    },
+    "scripts/release-train.mjs": {
+      "hash": "45614fc4952cac9d18a74e36227422e319b371a660a45c98069f4e27e68281c6"
+    },
+    "scripts/spec-lint.mjs": {
+      "hash": "37c87defd52d13ce070ef422c3349baabff3354e3b079234f4e1eaff4db3f8e3"
+    },
+    "scripts/stamp-run.mjs": {
+      "hash": "e2291b2b198849f543879af01346844126899756d5b992bfa1925b17dc33ec43"
+    },
+    "scripts/studio-scorecard.mjs": {
+      "hash": "e54de405c07aad7feb46117ae150db86410057200c4eaf8ab9aab002eeea9e3c"
+    },
+    "scripts/studio-sync.mjs": {
+      "hash": "e6cd668b0f461870daa4d108dc167a7570afa1b0ee0b4e04807948fb4ca8d96f"
+    },
+    "scripts/triage-report.mjs": {
+      "hash": "54be0b3fe1a587249a2bf18a30c0ea3f2086b20fbc02f4e30d2c4221fc2dcad0"
+    },
+    "scripts/ux-build-eval.mjs": {
+      "hash": "72f422f499d73389937a5b13993b513b456aaf681c5b1e466e7a3f5b94180a5d"
+    },
+    "scripts/ux-flows.mjs": {
+      "hash": "1181443c93b676779ad4e9e23d79d0ebca958ae4f860604610ddd91eefcb02b9"
+    },
+    "scripts/ux-issues.mjs": {
+      "hash": "6759acf60404045dfaf76d8991332f2aacd0e5c7e1d8e3e44cdab563e5b4b147"
+    },
+    "scripts/ux-recheck.mjs": {
+      "hash": "4d19689b19b7d3151c5ab73a4d290c986dcc006848566a34a37dbe0a74a8fc5b"
+    },
+    "scripts/ux-refs.mjs": {
+      "hash": "ede80360c13a6b18fd9841bb2b8e6ffa199c4954f9ce2d97b1f8a36049a570dc"
+    },
+    "scripts/ux-rules.mjs": {
+      "hash": "1f1880a38bb60b418884f768c615333d7dd45bc021da9db79ad8c821a347d79d"
+    },
+    "scripts/ux-search.mjs": {
+      "hash": "31ff6017739bd4651b11849c078d5f711448fbe249e02544af1c5e1b0e8b0a67"
+    },
+    "scripts/ux-shots.mjs": {
+      "hash": "2d959a46bdfd9b0de5fad461ff011d2a23984fbcff4fc3b22cf25e18d7ae74a1"
+    },
+    "scripts/ux-state.mjs": {
+      "hash": "28b07f239561e64daf917afa794da1cd0a4c50963044c3cd79e9423ab2dd884a"
+    },
+    "scripts/agent-prompt.sh": {
+      "hash": "5d3226642ab7b67f8b1e6b893515408baa8640c72e0088fa3f71ca1ef3f085b9"
+    },
+    "scripts/check-agent-runs.sh": {
+      "hash": "341232a94fb931e129d6a7954e659e02aa93014e38d129b031601ff0e57a083e"
+    },
+    "scripts/check-agents.sh": {
+      "hash": "382251be89ee7f7e3dc470437aa5b52fb76c5ee2e6da92826461e2a579e93322"
+    },
+    "scripts/check-handoff-status.sh": {
+      "hash": "2223db0a8db89616baf3dbe29fb4efeef2d9df65290eab840c9f187f4ba3c522"
+    },
+    "scripts/check-logs.mjs": {
+      "hash": "4a86f8df7d99064d7099a2a1384b86c5ff9a2273219f5e3f6e79478fd09d11fd"
+    },
+    "scripts/log-agent-run.sh": {
+      "hash": "475e6fde78abc17ce3b40621d5668b44879ab733de8998520bde7db4f0faa025"
+    },
+    ".github/workflows/handoff-check.yml": {
+      "hash": "ab412e75aef53cfde26211897c6f7eeca7dff7336e737b8d178ab3706c56a98b"
+    },
+    ".github/workflows/agents-check.yml": {
+      "hash": "a09ae3be8583d80e35fab087d6c8acf223d7763f8f244baa8c16cb1295df2583"
+    },
+    ".github/workflows/dependabot-automerge.yml": {
+      "hash": "d28e5d8075253703a9afb9a569be03e13f8e277f42e884fa5838fe041d13633b"
+    },
+    ".claude/settings.json": {
+      "hash": "731ac04ed0fd84c5595227943ea71f59e48dc59a8654ddd307708134b9422b41"
+    },
+    "studio-checks.json": {
+      "hash": "105795da57ee72c12e40e1bd7ce0fa359de3c536d55959ce3fa8475de95701be"
+    },
+    "docs/references/ux/README.md": {
+      "hash": "4ffe59b1f314e27f26e05a86fd693d28e368a36c42dabcae8fc57bda290b929a"
+    },
+    "docs/references/ux/clean-ui.md": {
+      "hash": "96c622aefbdc11b8d488cb8e676c517d8a287516a15dcbd3a955e488b051a89e"
+    },
+    "docs/references/ux/contrast.md": {
+      "hash": "336e136156cf5c19fde4c03e0c594920516b7ee5fd2f46328fd9bc03da88decf"
+    },
+    "docs/references/ux/dark-mode.md": {
+      "hash": "a10b499b135b3eafec0c5f5283cc5a8d4af3c5e3306dcffdd51e251f16791a14"
+    },
+    "eslint.config.mjs": {
+      "hash": "cd2d510d9828d6bf2baf5f83917f75f440a751cf5336bb23acf78e92c29dc5a0"
+    },
+    ".github/workflows/lint.yml": {
+      "hash": "22f281b5b4f4db1dbe8e0efa6ead60ecb3704f7dd426922e387d5dbaaa16b898"
+    }
+  }
+}

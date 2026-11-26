@@ -1,0 +1,8 @@
+building-blocks (@holroyd/building-blocks)
+Copyright (C) 2026 Chase Holroyd
+Licensed under MIT (see LICENSE).
+
+Seed: the tokens, theme and component kit in src/native were seeded once, on 2026-11-26, from the UI layer of Hearth's
+app (app/src/ui: theme.ts, tokens.ts, kit.tsx, typing.ts, tabBarSpace.tsx), which has the same author (relicensed from AGPL by the copyright holder).
+Product-specific pieces were left behind and the product's words removed. After the seed, fixes and new components
+happen here, never by copying from a product again.
