@@ -26,6 +26,10 @@ export function App() {
 - **Icons.** Icons take `{ sf, md }` names (SF Symbol, Material Symbol). The default draws them with `expo-symbols` on iPhone and Android and a text glyph on the web; wrap your tree in `IconProvider` with a `render(icon, { color, size })` to use your own set.
 - **Tokens.** `src/native/tokens.ts` is pure data (no React or React Native). `docs/design/tokens.json` and `docs/design/themes.css` are generated from it (CSS variables for web products: `<html data-theme="avocado" data-mode="dark">`).
 
+## Platform
+
+`@holroyd/building-blocks/platform` holds the small device pieces every app needs, each with a phone version, a web twin and a test fake: key/value storage, encrypted session storage, haptics, `readBytes`, base64 and secure random. Peers: `@react-native-async-storage/async-storage`, `expo-secure-store`, `expo-haptics`, `expo-file-system`, `expo-crypto`. One page per module in `docs/platform/`.
+
 ## Components
 
 `Txt`, `Button`, `IconButton`, `Field`, `Choice`, `MenuRow`, `Card`, `GroupedSection`, `Screen`, `Loading`, `Notice`, `AlertDialog`, `BottomSheet`. Each has a page in `docs/components/` and a Storybook story with Light, Dark and EasyView.
