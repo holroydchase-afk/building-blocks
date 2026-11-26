@@ -1,0 +1,20 @@
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: npm }
+      - run: npm ci
+      - run: node scripts/check-private.mjs
+      - run: npm run typecheck
+      - run: npm run lint
+        env:
+          STUDIO_LINT_STRICT: '1'
+      - run: npm test
+      - run: npm run build-storybook

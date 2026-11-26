@@ -1,0 +1,14 @@
+{
+  "logs": {
+    "roots": [
+      "src"
+    ],
+    "banned": [],
+    "bannedWords": []
+  },
+  "agents": {
+    "verify": "",
+    "runs": 3
+  },
+  "private": {}
+}
