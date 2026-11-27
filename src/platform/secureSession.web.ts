@@ -70,8 +70,10 @@ function lsKeys(ls: Storage): string[] {
 }
 
 export function createSecureSessionStorage(
-  { keys, legacyKeys = NO_LEGACY }: { keys: SessionKeyStore; legacyKeys?: RegExp },
+  { keys, legacyKeys: legacyPattern = NO_LEGACY }: { keys: SessionKeyStore; legacyKeys?: RegExp },
 ): SecureSessionStorage {
+  // A g or y flag would make .test() remember its position and skip names; the flags that matter are kept.
+  const legacyKeys = new RegExp(legacyPattern.source, legacyPattern.flags.replace(/[gy]/g, ''));
   /** Memory mode: something the sealed store needs is missing; nothing touches localStorage. */
   let memory = false;
   const mem = new Map<string, string>();
@@ -192,6 +194,8 @@ export function createSecureSessionStorage(
     if (!memory && (await seal(name, value))) return;
     goMemory();
     mem.set(name, value);
+    // The older sealed copy must not come back after a reload as a stale value.
+    try { ls()?.removeItem(PREFIX + name); } catch { /* blocked */ }
   });
 
   const removeItem = (name: string) => serial(async (): Promise<void> => {

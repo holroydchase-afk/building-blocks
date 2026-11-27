@@ -300,4 +300,33 @@ describe('PL-WEB secureSession.web', () => {
     expect(typeof d.removeItem).toBe('function');
     expect(typeof d.clear).toBe('function');
   });
+
+  // privacy-security review of the port (PS-R2, PS-R3, PS-R4).
+  it('PS-R2 a write that falls back to memory removes the older sealed copy, so a reload never reads the stale value', async () => {
+    const keys = memoryKeys();
+    await create(keys).setItem('k', 'old');
+    expect([...store.m.keys()].some((k) => k.endsWith('k'))).toBe(true);
+    const broken = { get: async () => { throw new Error('IndexedDB blocked'); }, put: async () => { throw new Error('blocked'); }, delete: async () => undefined };
+    const s2 = create(broken);
+    await s2.setItem('k', 'new');
+    expect(await s2.getItem('k')).toBe('new');
+    expect([...store.m.keys()].filter((k) => k.endsWith('k'))).toEqual([]);
+    expect(await create(keys).getItem('k')).toBeNull();
+  });
+
+  it('PS-R3 a legacy pattern with the g flag still seals every matching name', async () => {
+    store.m.set('chat.a', 'x'); store.m.set('chat.b', 'y');
+    const f = (web as unknown as { createSecureSessionStorage: (o: { keys: KeyStore; legacyKeys: RegExp }) => Store }).createSecureSessionStorage;
+    const s = f({ keys: memoryKeys(), legacyKeys: /^chat\..*$/g });
+    await s.getItem('chat.a');
+    expect(store.m.has('chat.a')).toBe(false);
+    expect(store.m.has('chat.b')).toBe(false);
+  });
+
+  it('PS-R4 indexedDbKeyStore opens the database name it is given', async () => {
+    const opened: string[] = [];
+    const idb = { open: (name: string) => { opened.push(name); const r: Record<string, unknown> = {}; setTimeout(() => (r.onerror as () => void)?.()); return r; } } as unknown as IDBFactory;
+    await web.indexedDbKeyStore(idb, 'my-app.session').get().catch(() => undefined);
+    expect(opened).toEqual(['my-app.session']);
+  });
 });

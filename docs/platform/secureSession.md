@@ -29,10 +29,17 @@ The blob is stored as base64 of nonce (12) + ciphertext + tag (16) under `<prefi
 ## Security note
 Each item has its own random AES-256-GCM key, created on first write and kept in the Keychain or Keystore through expo-secure-store; each write uses a fresh 12-byte nonce. A tampered or moved blob fails authentication and reads as `null`. This does not protect a phone that is unlocked and compromised, a rooted or jailbroken device, or the value after your code has read it into memory. Removing an item deletes both the blob and its key. 
 ### Web twin
+```ts
+// Inside the library (secureSession.web.ts); the entry's `createSecureSessionStorage` resolves to this one on web.
+const store = createSecureSessionStorage({ keys: indexedDbKeyStore(undefined, 'my-app.session'), legacyKeys: /^old_/ });
+```
 - Values are sealed under the `hs.` prefix with the value's name bound as additional data; the key is created on first write and never leaves WebCrypto.
 - `legacyKeys` is a pattern for plain-text names an older build wrote through this store. On first use every match is sealed and its plain copy removed, even when sealing fails (then the value lives in memory for the visit).
 - `sealBytes(name, bytes)` and `openBytes(name, sealed)` use the same key for byte stores such as queued uploads. `sealBytes` returns `null` rather than plain bytes when it cannot seal.
+- `clear()` also removes every localStorage name `legacyKeys` matches, so keep that pattern narrow. It needs no `g` or `y` flag (they are ignored).
 - `clear()` removes every sealed value and deletes the key, so bytes sealed earlier can no longer be opened.
 - `indexedDbKeyStore(idb, dbName)`: pass the database name an earlier build used so an existing key is found again.
+- Losing the key (for example cleared IndexedDB) makes every sealed value unreadable: they are purged and read as signed out.
+- The `hs.` prefix is kept for compatibility with data an earlier build already wrote.
 - A value that will not open (tampered, wrong name, key gone) reads as `null`.
 - Not protected: a page script that can already call WebCrypto with the key while the page is open.
