@@ -3,13 +3,13 @@
 stage: review
 goal: building-blocks
 milestone: CL-M1
-now: PR 4 open: BackButton, MenuLine and Field underline moved over from Hearth (425 tests, lint, types, Storybook green; reviews pending). Queue: tiles and photo look helpers, media and upload platform pieces, runtime/error patterns, then Hearth imports. Intake for Atlas: #4
-next: merge PR 2 on green; then /app-kit (ErrorBoundary, format, mediaStore, state, errors, test helpers, config), /chat and create-app
+now: PRs 1-3 merged (/native, /platform, sealed web session, /app-kit first pieces); PR 8 open: BackButton, MenuLine and Field underline (472 tests, lint, types, Storybook green; review round 1 fixed)
+next: tiles (FaceTile, AddTile, AddPhotoCard, PostcardStamp) and photo look helpers, then media and upload platform pieces, then runtime and fake-runtime pattern, error messages, problem log, error report; then Hearth's import PRs after a re-diff
 waiting_on_chase: []
 blockers: []
 -->
 ## Done
-- BackButton, MenuLine and Field `underline`/`strongLine` (CL-21..CL-23) moved over from Hearth with docs and stories (2026-11-27).
+- BackButton, MenuLine and Field `underline` (CL-21..CL-23; `strongLine` dropped, the strong rule is the only one) moved over from Hearth with docs and stories (2026-11-27).
 - `/app-kit`: format, ErrorBoundary, createNavContext (PR #3, merged).
 - Sealed web session store (AES-256-GCM, non-extractable key, byte sealing) ported from Hearth @3f67242/e89a5a3; legacy names and database name are options (2026-11-27). Hearth's native delta since the seed needed nothing (already lint-clean here).
 - Scaffold, studio sync, strict TypeScript and lint (2026-11-26).
@@ -24,6 +24,8 @@ blockers: []
 Seed `main`, open the first PR, merge on green. Then: `/app-kit`, `/chat` (registry plus fake transport), `create-app`, Hearth hand-over intake.
 
 ## Decisions to review
+- Name and scope (Chase, Nov 26; issue 4): Building Blocks everywhere, never "component library"; Hearth is the source of truth; nothing generic stays in Hearth. Atlas-side updates (architect rule carve-out in studio-agents, migration plan rename, STUDIO-STATUS row) are done in their own PRs and files.
+- Hand-over queue and gap list from the Hearth assessment: kit gaps PhotoTile, Chip, ListRow, SearchField, EmptyState, ErrorState, ScreenHeader, Badge, Row/Stack; add parseStored(schema), withTimeout; move FakeBackend out of src.
 - One repo (`building-blocks`) with subpath layers, not several; messenger and visibility stay separate packages.
 - Default font is the system font; a product passes its own. Default `os` follows `Platform.OS`.
 - DECIDED (Chase, Nov 26): nothing generic stays in Hearth; the library is what other products and pipelines pull from. To move, with product words turned into options: BackButton, MenuLine, Field underline, photo look helpers, FaceTile/AddTile/PostcardStamp (as neutral components), mediaStore, saveToPhone, videoFiles, web uploadStore, the runtime and fake-runtime pattern, error messages, problem log and error report (injected reporter, version and scrubber).

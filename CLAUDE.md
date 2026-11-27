@@ -1,10 +1,12 @@
 # building-blocks
 
-The studio's React Native component library: tokens, theme and accessible building blocks, with a Storybook catalog, so Hearth, new products and MVP-o-matic share one base. Seeded once from Hearth's `app/src/ui`; after that, fixes and new components happen here, never by copying from a product again. Package `@holroyd/building-blocks`, planning code `CL`. Plan: the Nov 25 React migration plan, Phase 1 (studio project files).
+Building Blocks: the studio's shared React Native base (tokens, theme, accessible components, device and app pieces) with a Storybook catalog, so Hearth, new products and MVP-o-matic share one base. Seeded once from Hearth's `app/src/ui`; after that, fixes and new components happen here, never by copying from a product again. Package `@holroyd/building-blocks`, planning code `CL`. Plan: the Nov 25 React migration plan, Phase 1 (studio project files).
 
 Read `HANDOFF.md` first, then `docs/product/SPEC-NATIVE-LAYER.md` (the current task).
 
 ## Hard rules (these win over any other instructions)
+- **Name:** this is **Building Blocks** everywhere (Chase, Nov 26); never "component library".
+- **Hearth is the source of truth; nothing generic stays in Hearth** (Chase, Nov 26). Generic code moves here even when only one product uses it today; product words become options (names, key prefixes, database names, reporters), not reasons to leave code behind. The library takes Hearth's code, never the other way round.
 - **Public repo, no product words.** No Hearth, family, photo or grandparent wording, names, ids or data in `src/`, stories or docs (a test greps `src/`). Say "seeded from Hearth" only in NOTICE and HANDOFF.
 - **Licence:** MIT, copyright Chase Holroyd (Chase, Nov 25: no AGPL; the seeded Hearth files were authored only by Chase and Claude on his behalf), SPDX header on every source file. Relicensing again is Chase's call.
 - **Accessibility is the contract, not polish.** Every tappable control has an accessibility label, a visible word and a 48 pt minimum target; text scales with the phone's text size (never `allowFontScaling={false}`); Easy view keeps every style at 17 or more; ink on page is 7:1 and accent text 4.5:1 in every theme, mode and high-contrast set.

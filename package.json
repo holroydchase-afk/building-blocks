@@ -2,7 +2,7 @@
   "name": "@holroyd/building-blocks",
   "version": "0.0.0",
   "private": true,
-  "description": "The studio's React Native component library: tokens, theme and accessible building blocks, with a Storybook catalog.",
+  "description": "Building Blocks: the studio's React Native tokens, theme and components (and the device and app pieces behind them): tokens, theme and accessible building blocks, with a Storybook catalog.",
   "license": "MIT",
   "type": "module",
   "exports": {

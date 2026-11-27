@@ -1,6 +1,6 @@
 # building-blocks
 
-The studio's React Native component library: design tokens, a theme and accessible building blocks that work on iPhone, Android and the web (React Native Web), with a Storybook catalog. Package `@holroyd/building-blocks`.
+Building Blocks: the studio's React Native tokens, theme and components (and the device and app pieces behind them): design tokens, a theme and accessible building blocks that work on iPhone, Android and the web (React Native Web), with a Storybook catalog. Package `@holroyd/building-blocks`.
 
 Accessibility is the contract: every tappable control has an accessibility label, a visible word and a 48 pt minimum target; text scales with the phone's text size; Easy view keeps every style at 17 or more; ink on the page is 7:1 and accent text 4.5:1 in every theme, mode and high-contrast set.
 
