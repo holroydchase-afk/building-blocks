@@ -3,7 +3,7 @@
 stage: review
 goal: building-blocks
 milestone: CL-M1
-now: PR 2 open: sealed web session store ported from Hearth (372 tests, lint and types green; PS-R1..R5 fixed; QA-R1..R3 P2 open)
+now: PR 2 merged (sealed web session); PR 3 open: /app-kit first piece (format, ErrorBoundary, nav factory). Was: PR 2 open: sealed web session store ported from Hearth (372 tests, lint and types green; PS-R1..R5 fixed; QA-R1..R3 P2 open)
 next: merge PR 2 on green; then /app-kit (ErrorBoundary, format, mediaStore, state, errors, test helpers, config), /chat and create-app
 waiting_on_chase: []
 blockers: []
@@ -24,7 +24,7 @@ Seed `main`, open the first PR, merge on green. Then: `/app-kit`, `/chat` (regis
 ## Decisions to review
 - One repo (`building-blocks`) with subpath layers, not several; messenger and visibility stay separate packages.
 - Default font is the system font; a product passes its own. Default `os` follows `Platform.OS`.
-- Left in Hearth for now: BackButton, MenuLine, Field underline, photo look helpers. Say if any should move here.
+- DECIDED (Chase, Nov 26): nothing generic stays in Hearth; the library is what other products and pipelines pull from. To move, with product words turned into options: BackButton, MenuLine, Field underline, photo look helpers, FaceTile/AddTile/PostcardStamp (as neutral components), mediaStore, saveToPhone, videoFiles, web uploadStore, the runtime and fake-runtime pattern, error messages, problem log and error report (injected reporter, version and scrubber).
 - Web session QA P2s: QA-R1 clear() should reset the memory switch and migrated flag; QA-R2 name-swap test; QA-R3 unicode and large-value test.
 - QA P2 follow-ups: QA-R5..R9 (stricter Screen, large-text and dark-mode contrast tests, device proof of 48pt); PS-R2..R4 (pin actions, secret scanning, SECURITY.md).
 

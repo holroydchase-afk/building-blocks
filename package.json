@@ -14,6 +14,10 @@
       "types": "./src/platform/index.ts",
       "default": "./src/platform/index.ts"
     },
+    "./app-kit": {
+      "types": "./src/app-kit/index.ts",
+      "default": "./src/app-kit/index.ts"
+    },
     "./package.json": "./package.json"
   },
   "engines": {
