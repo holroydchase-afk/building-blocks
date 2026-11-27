@@ -9,6 +9,7 @@ waiting_on_chase: []
 blockers: []
 -->
 ## Done
+- Security CI (intake #7): gitleaks full-history scan, npm audit (prod, high+), CodeQL; every Action pinned to a commit SHA (2026-11-27). Dependency review stays off until the repo's dependency graph is on. React Native a11y lint rules not added: eslint-plugin-react-native-a11y 3.5.1 peers ESLint 3-8, repo is on 9; the 48 pt, label and text-scale contract stays covered by tests and the Storybook a11y addon.
 - BackButton, MenuLine and Field `underline` (CL-21..CL-23; `strongLine` dropped, the strong rule is the only one) moved over from Hearth with docs and stories (2026-11-27).
 - `/app-kit`: format, ErrorBoundary, createNavContext (PR #3, merged).
 - Sealed web session store (AES-256-GCM, non-extractable key, byte sealing) ported from Hearth @3f67242/e89a5a3; legacy names and database name are options (2026-11-27). Hearth's native delta since the seed needed nothing (already lint-clean here).
