@@ -3,12 +3,14 @@
 stage: review
 goal: building-blocks
 milestone: CL-M1
-now: PR 2 merged (sealed web session); PR 3 open: /app-kit first piece (format, ErrorBoundary, nav factory). Was: PR 2 open: sealed web session store ported from Hearth (372 tests, lint and types green; PS-R1..R5 fixed; QA-R1..R3 P2 open)
+now: PR 4 open: BackButton, MenuLine and Field underline moved over from Hearth (425 tests, lint, types, Storybook green; reviews pending). Queue: tiles and photo look helpers, media and upload platform pieces, runtime/error patterns, then Hearth imports. Intake for Atlas: #4
 next: merge PR 2 on green; then /app-kit (ErrorBoundary, format, mediaStore, state, errors, test helpers, config), /chat and create-app
 waiting_on_chase: []
 blockers: []
 -->
 ## Done
+- BackButton, MenuLine and Field `underline`/`strongLine` (CL-21..CL-23) moved over from Hearth with docs and stories (2026-11-27).
+- `/app-kit`: format, ErrorBoundary, createNavContext (PR #3, merged).
 - Sealed web session store (AES-256-GCM, non-extractable key, byte sealing) ported from Hearth @3f67242/e89a5a3; legacy names and database name are options (2026-11-27). Hearth's native delta since the seed needed nothing (already lint-clean here).
 - Scaffold, studio sync, strict TypeScript and lint (2026-11-26).
 - `/native` layer (CL-1..CL-20): pure tokens, ten themes, ThemeProvider and IconProvider, 13 components, stories (Light, Dark, EasyView), per-component docs, golden tokens.json and themes.css. qa-tdd green 3x; privacy-security PASS (P2 notes PS-R1..R4).

@@ -172,6 +172,41 @@ export function MenuRow({ text, icon, count, value, onPress, testID }: { text: s
   );
 }
 
+const BACK: Icon = { sf: 'chevron.backward', md: 'arrow_back' };
+
+/** A back button, top left above the title: a chevron and the place's word ("< Settings") as a plain text button, 48 pt
+ *  tall (60 pt in Easy view). The screen reader hears "Back to Settings": a labeled way back, no swipe needed. */
+export function BackButton({ to, onPress, label, ink, style }: {
+  to: string; onPress: () => void;
+  /** Spoken name, when not "Back to <to>". */
+  label?: string;
+  /** Draw in the words' own colour, where the screen's one accent belongs to another button. */
+  ink?: boolean;
+  style?: StyleProp<ViewStyle>;
+}) {
+  const { c, os, easyView, text: type } = useTheme();
+  const color = ink ? c.ink : c.accent;
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label ?? `Back to ${to}`}
+      onPress={onPress}
+      android_ripple={{ color: c.line }}
+      style={({ pressed }) => [styles.back, { minHeight: easyView ? 60 : MIN_TARGET, opacity: pressed && os !== 'android' ? 0.7 : 1 }, style]}
+    >
+      <SystemIcon icon={BACK} color={color} />
+      <Text style={[type('body'), { color }]}>{to}</Text>
+    </Pressable>
+  );
+}
+
+/** The line between two MenuRows, inset to start where the words start (after the 26 pt icon and its 14 pt gap), like
+ *  the phone's own Settings lists. Never full width. */
+export function MenuLine() {
+  const { c } = useTheme();
+  return <View testID="menu-line" style={[styles.menuLine, { backgroundColor: c.line }]} />;
+}
+
 /** A whole-row checkbox, radio or switch: the full row is the 48 pt+ target, a plain grouped row like the phone's own
  *  settings. A picked radio shows an accent check mark at the end; a checkbox shows an empty box that fills with an
  *  accent check. Switches are the phone's own switch with the word On or Off beside it. */
@@ -214,13 +249,17 @@ export function Choice({ label, title, detail, checked, onPress, kind, disabled 
 
 /** A text field with its label above, always visible and used as the accessible name. An error shows as words below,
  *  announced by screen readers, and marks the input invalid. At least 48 pt tall. */
-export function Field(props: TextInputProps & { label: string; error?: string }) {
+export function Field(props: TextInputProps & { label: string; error?: string; underline?: boolean; strongLine?: boolean }) {
   const { c, os, text: type } = useTheme();
-  const { label, error, style, onFocus, onBlur, ...rest } = props;
+  const { label, error, style, onFocus, onBlur, underline, strongLine, ...rest } = props;
   const typing = useTypingField(); // a tab bar steps aside while this field is focused
   const [focused, setFocused] = useState(false);
   // iPhone and the web: a filled rounded box with no edge. Android: Material's outlined text field.
-  const box: TextStyle = os === 'android'
+  // `underline` writes on the surface it sits on: no fill, a hairline rule under the words; `strongLine` draws that rule
+  // in the stronger edge colour for a surface where the plain line reads too faint.
+  const box: TextStyle = underline
+    ? { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: strongLine ? c.tabLine : c.line, backgroundColor: CLEAR, paddingHorizontal: 0, paddingTop: 4, paddingBottom: 8 }
+    : os === 'android'
     ? { borderWidth: 1, borderColor: c.muted, backgroundColor: CLEAR, borderRadius: RADIUS.small }
     : { borderWidth: 0, backgroundColor: c.fill, borderRadius: RADIUS.medium };
   // On the web a rounded field draws its own 2 pt focus edge that follows its corners; at rest the edge is clear so
@@ -383,6 +422,8 @@ const styles = StyleSheet.create({
   choice: { minHeight: MIN_TARGET + 8, minWidth: MIN_TARGET, paddingVertical: SPACE.sm, flexDirection: 'row', alignItems: 'center', gap: SPACE.md },
   switchBox: { flexDirection: 'row', alignItems: 'center', gap: SPACE.sm },
   field: { gap: 6 },
+  back: { alignSelf: 'flex-start', minWidth: MIN_TARGET, flexDirection: 'row', alignItems: 'center', gap: SPACE.xs, paddingVertical: 10 },
+  menuLine: { height: StyleSheet.hairlineWidth, marginLeft: 40 },
   input: { minHeight: 56, paddingHorizontal: 14, paddingVertical: SPACE.md },
   card: { padding: 14, gap: SPACE.md },
   screen: { padding: SPACE.lg, gap: SPACE.lg, paddingBottom: SPACE.xxl },

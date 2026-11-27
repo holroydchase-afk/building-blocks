@@ -10,6 +10,7 @@ import { Field } from '@holroyd/building-blocks/native';
 ## Props
 - `label` (required): visible label and accessible name.
 - `error`: error words, shown below, announced to screen readers, and the input is marked invalid.
+- `underline`: no fill; a hairline rule under the words, for writing on the surface the field sits on. `strongLine` draws that rule in the stronger edge colour for a surface where the plain line reads too faint.
 - Every `TextInput` prop (`value`, `onChangeText`, `placeholder`, `keyboardType`, ...).
 
 ## Do and don't
