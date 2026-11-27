@@ -84,10 +84,15 @@ describe('UX-R2 underline keeps its look on the web when focused or in error', (
     expect(s.borderTopWidth ?? 0).toBe(0);
     expect(Number(s.borderBottomWidth)).toBeGreaterThanOrEqual(2);
     expect(s.borderBottomColor).toBe(paletteFor('web', false, 'paper', false).accent);
+    fireEvent(screen.getByTestId('u'), 'blur');
+    const after = flat(screen.getByTestId('u').props.style);
+    expect(after.borderBottomWidth).toBe(1);
+    expect(after.borderBottomColor).toBe(paletteFor('web', false, 'paper', false).tabLine);
   });
 });
 
 describe('UX-R3 MenuLine starts where the words start, also at large text', () => {
+  afterEach(() => jest.restoreAllMocks());
   it.each([1, 1.5, 2])('inset is the scaled 26 pt icon plus the 14 pt gap at font scale %s', (fontScale) => {
     const dims = require('react-native/Libraries/Utilities/useWindowDimensions') as { default: () => unknown };
     jest.spyOn(dims, 'default').mockReturnValue({ width: 390, height: 844, scale: 3, fontScale });
