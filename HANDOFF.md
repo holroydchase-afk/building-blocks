@@ -3,8 +3,8 @@
 stage: review
 goal: building-blocks
 milestone: CL-M1
-now: PR 2 merged (sealed web session); PR 3 open: /app-kit first piece (format, ErrorBoundary, nav factory). Was: PR 2 open: sealed web session store ported from Hearth (372 tests, lint and types green; PS-R1..R5 fixed; QA-R1..R3 P2 open)
-next: merge PR 2 on green; then /app-kit (ErrorBoundary, format, mediaStore, state, errors, test helpers, config), /chat and create-app
+now: PRs 1-3 merged (/native, /platform, sealed web session, /app-kit first pieces); working Hearth hand-over queue from issue 4, one PR each
+next: neutral components (BackButton, MenuLine, Field underline, FaceTile, AddTile, PostcardStamp, photo look helpers), then media and upload platform pieces, then runtime and fake-runtime pattern, error messages, problem log, error report; then Hearth's import PRs after a re-diff
 waiting_on_chase: []
 blockers: []
 -->
@@ -22,6 +22,8 @@ blockers: []
 Seed `main`, open the first PR, merge on green. Then: `/app-kit`, `/chat` (registry plus fake transport), `create-app`, Hearth hand-over intake.
 
 ## Decisions to review
+- Name and scope (Chase, Nov 26; issue 4): Building Blocks everywhere, never "component library"; Hearth is the source of truth; nothing generic stays in Hearth. Atlas-side updates (architect rule carve-out in studio-agents, migration plan rename, STUDIO-STATUS row) are done in their own PRs and files.
+- Hand-over queue and gap list from the Hearth assessment: kit gaps PhotoTile, Chip, ListRow, SearchField, EmptyState, ErrorState, ScreenHeader, Badge, Row/Stack; add parseStored(schema), withTimeout; move FakeBackend out of src.
 - One repo (`building-blocks`) with subpath layers, not several; messenger and visibility stay separate packages.
 - Default font is the system font; a product passes its own. Default `os` follows `Platform.OS`.
 - DECIDED (Chase, Nov 26): nothing generic stays in Hearth; the library is what other products and pipelines pull from. To move, with product words turned into options: BackButton, MenuLine, Field underline, photo look helpers, FaceTile/AddTile/PostcardStamp (as neutral components), mediaStore, saveToPhone, videoFiles, web uploadStore, the runtime and fake-runtime pattern, error messages, problem log and error report (injected reporter, version and scrubber).
