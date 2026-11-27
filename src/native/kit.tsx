@@ -204,7 +204,8 @@ export function BackButton({ to, onPress, label, ink, style }: {
  *  the phone's own Settings lists. Never full width. */
 export function MenuLine() {
   const { c } = useTheme();
-  return <View testID="menu-line" style={[styles.menuLine, { backgroundColor: c.line }]} />;
+  const { fontScale } = useWindowDimensions(); // the icon grows with the text size, so the inset does too
+  return <View testID="menu-line" style={[styles.menuLine, { marginLeft: iconSize(26, fontScale) + 14, backgroundColor: c.line }]} />;
 }
 
 /** A whole-row checkbox, radio or switch: the full row is the 48 pt+ target, a plain grouped row like the phone's own
@@ -249,23 +250,26 @@ export function Choice({ label, title, detail, checked, onPress, kind, disabled 
 
 /** A text field with its label above, always visible and used as the accessible name. An error shows as words below,
  *  announced by screen readers, and marks the input invalid. At least 48 pt tall. */
-export function Field(props: TextInputProps & { label: string; error?: string; underline?: boolean; strongLine?: boolean }) {
+export function Field(props: TextInputProps & { label: string; error?: string; underline?: boolean }) {
   const { c, os, text: type } = useTheme();
-  const { label, error, style, onFocus, onBlur, underline, strongLine, ...rest } = props;
+  const { label, error, style, onFocus, onBlur, underline, ...rest } = props;
   const typing = useTypingField(); // a tab bar steps aside while this field is focused
   const [focused, setFocused] = useState(false);
   // iPhone and the web: a filled rounded box with no edge. Android: Material's outlined text field.
-  // `underline` writes on the surface it sits on: no fill, a hairline rule under the words; `strongLine` draws that rule
-  // in the stronger edge colour for a surface where the plain line reads too faint.
+  // `underline` writes on the surface it sits on: no fill and one rule under the words, in the stronger edge colour (the
+  // rule is the field's only edge, so it reads at 3:1 against the page and the surface in every theme and mode).
   const box: TextStyle = underline
-    ? { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: strongLine ? c.tabLine : c.line, backgroundColor: CLEAR, paddingHorizontal: 0, paddingTop: 4, paddingBottom: 8 }
+    ? { borderBottomWidth: 1, borderBottomColor: c.tabLine, backgroundColor: CLEAR, paddingHorizontal: 0, paddingTop: 4, paddingBottom: 8 }
     : os === 'android'
     ? { borderWidth: 1, borderColor: c.muted, backgroundColor: CLEAR, borderRadius: RADIUS.small }
     : { borderWidth: 0, backgroundColor: c.fill, borderRadius: RADIUS.medium };
   // On the web a rounded field draws its own 2 pt focus edge that follows its corners; at rest the edge is clear so
   // focusing never shifts the words. Phones keep their own focus look.
-  const ring: TextStyle | null = os === 'web' ? { borderWidth: 2, borderColor: focused ? c.accent : CLEAR, outlineStyle: 'none' } as unknown as TextStyle : null;
-  const bad: TextStyle | null = error ? { borderWidth: 2, borderColor: c.dangerText } : null;
+  // With `underline` only the bottom rule changes, so the field keeps its look and its words never shift.
+  const ring: TextStyle | null = os === 'web'
+    ? ({ ...(underline ? (focused ? { borderBottomWidth: 2, borderBottomColor: c.accent } : {}) : { borderWidth: 2, borderColor: focused ? c.accent : CLEAR }), outlineStyle: 'none' } as unknown as TextStyle)
+    : null;
+  const bad: TextStyle | null = error ? (underline ? { borderBottomWidth: 2, borderBottomColor: c.dangerText } : { borderWidth: 2, borderColor: c.dangerText }) : null;
   return (
     <View style={styles.field}>
       <Txt variant="headline">{label}</Txt>
@@ -423,7 +427,7 @@ const styles = StyleSheet.create({
   switchBox: { flexDirection: 'row', alignItems: 'center', gap: SPACE.sm },
   field: { gap: 6 },
   back: { alignSelf: 'flex-start', minWidth: MIN_TARGET, flexDirection: 'row', alignItems: 'center', gap: SPACE.xs, paddingVertical: 10 },
-  menuLine: { height: StyleSheet.hairlineWidth, marginLeft: 40 },
+  menuLine: { height: StyleSheet.hairlineWidth },
   input: { minHeight: 56, paddingHorizontal: 14, paddingVertical: SPACE.md },
   card: { padding: 14, gap: SPACE.md },
   screen: { padding: SPACE.lg, gap: SPACE.lg, paddingBottom: SPACE.xxl },
