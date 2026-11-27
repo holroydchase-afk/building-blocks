@@ -1,10 +1,10 @@
 # SPEC-PLATFORM-LAYER: the `/platform` layer (task 1c)
 
-Source: seeded once from Hearth's `app/src/platform` (`kv.ts`, `storage.ts`/`.web.ts`, `webStorage.ts`, `secureSession.ts`/`.web.ts`, `haptics.ts`, `bytes.ts`/`.web.ts`) and `app/src/crypto` (`base64.ts`, `random.ts`). Product words removed. Photo and video pieces (mediaStore, saveToPhone, videoFiles) stay in Hearth until a second product needs them.
+Source: seeded once from Hearth's `app/src/platform` (`kv.ts`, `storage.ts`/`.web.ts`, `webStorage.ts`, `secureSession.ts`/`.web.ts`, `haptics.ts`, `bytes.ts`/`.web.ts`) and `app/src/crypto` (`base64.ts`, `random.ts`). Product words removed. Photo and video pieces (mediaStore, saveToPhone, videoFiles) and the web upload store are queued to move here too, with product words turned into options (Chase, Nov 26).
 
 Job: the small device pieces every app needs, each with a phone version, a web twin and a test fake, imported from `@holroyd/building-blocks/platform`.
 Done when: every PL criterion has a passing test, suite green 3x, strict lint and typecheck clean, Storybook still builds.
-Stop rule: nothing is added that a second product would not use.
+Stop rule: nothing product-specific is added (no product words, no product API types). Generic code moves here even if only one product uses it today, because other products and pipelines pull from this library.
 
 ## Acceptance criteria
 

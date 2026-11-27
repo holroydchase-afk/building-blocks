@@ -1,10 +1,10 @@
 # SPEC-NATIVE-LAYER: the `/native` layer (task 1a + 1b)
 
-Source: seeded once from Hearth's `app/src/ui` (`theme.ts`, `tokens.ts`, `kit.tsx`, `typing.ts`, `tabBarSpace.tsx`) and never copied from a product again. Product words are removed; Hearth-only pieces (FaceTile, AddTile, AddPhotoCard, PostcardStamp, STAMP_MARK, EMOJI_GLYPH) stay in Hearth.
+Source: seeded once from Hearth's `app/src/ui` (`theme.ts`, `tokens.ts`, `kit.tsx`, `typing.ts`, `tabBarSpace.tsx`) and never copied from a product again. Product words are removed; Pieces that carried Hearth's words (FaceTile, AddTile, AddPhotoCard, PostcardStamp, STAMP_MARK, EMOJI_GLYPH) are queued to move here as neutral components (Chase, Nov 26: nothing generic stays in the product).
 
 Job: one typed, accessible set of tokens, theme and components that any studio Expo app (and MVP-o-matic's `create-app`) imports from `@holroyd/building-blocks/native`.
 Done when: every CL criterion below has a passing test, the suite is green 3x, `build-storybook` succeeds, lint is clean in strict mode.
-Stop rule: nothing is added that a second product would not use. Anything else stays in the product.
+Stop rule: nothing product-specific is added (no product words, no product API types). Generic code moves here even if only one product uses it today, because other products and pipelines pull from this library.
 
 ## Acceptance criteria
 
