@@ -12,6 +12,7 @@ function Demo() {
     <Card>
       <Field label="Your name" value={name} onChangeText={setName} placeholder="Sam" />
       <Field label="Email address" value="sam@" onChangeText={setName} error="Enter a full email address." />
+      <Field label="Add a note (optional)" underline value={name} onChangeText={setName} />
     </Card>
   );
 }

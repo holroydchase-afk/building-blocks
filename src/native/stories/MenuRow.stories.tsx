@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2026 Chase Holroyd
 import React from 'react';
-import { GroupedSection, MenuRow } from '..';
+import { GroupedSection, MenuLine, MenuRow } from '..';
 import { DARK, EASY, LIGHT, noop } from './helpers';
 
 export default { title: 'Native/MenuRow', component: MenuRow };
@@ -9,7 +9,9 @@ export default { title: 'Native/MenuRow', component: MenuRow };
 const render = () => (
   <GroupedSection>
     <MenuRow text="Messages" count="2 new" icon={{ sf: 'bubble.left', md: 'chat' }} onPress={noop} />
+    <MenuLine />
     <MenuRow text="Language" value="English" icon={{ sf: 'globe', md: 'language' }} onPress={noop} />
+    <MenuLine />
     <MenuRow text="Help" icon={{ sf: 'questionmark', md: 'help' }} onPress={noop} />
   </GroupedSection>
 );

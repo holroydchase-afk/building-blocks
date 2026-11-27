@@ -3,12 +3,14 @@
 stage: review
 goal: building-blocks
 milestone: CL-M1
-now: PRs 1-3 merged (/native, /platform, sealed web session, /app-kit first pieces); working Hearth hand-over queue from issue 4, one PR each
-next: neutral components (BackButton, MenuLine, Field underline, FaceTile, AddTile, PostcardStamp, photo look helpers), then media and upload platform pieces, then runtime and fake-runtime pattern, error messages, problem log, error report; then Hearth's import PRs after a re-diff
+now: PRs 1-3 merged (/native, /platform, sealed web session, /app-kit first pieces); PR 8 open: BackButton, MenuLine and Field underline (472 tests, lint, types, Storybook green; review round 1 fixed)
+next: tiles (FaceTile, AddTile, AddPhotoCard, PostcardStamp) and photo look helpers, then media and upload platform pieces, then runtime and fake-runtime pattern, error messages, problem log, error report; then Hearth's import PRs after a re-diff
 waiting_on_chase: []
 blockers: []
 -->
 ## Done
+- BackButton, MenuLine and Field `underline` (CL-21..CL-23; `strongLine` dropped, the strong rule is the only one) moved over from Hearth with docs and stories (2026-11-27).
+- `/app-kit`: format, ErrorBoundary, createNavContext (PR #3, merged).
 - Sealed web session store (AES-256-GCM, non-extractable key, byte sealing) ported from Hearth @3f67242/e89a5a3; legacy names and database name are options (2026-11-27). Hearth's native delta since the seed needed nothing (already lint-clean here).
 - Scaffold, studio sync, strict TypeScript and lint (2026-11-26).
 - `/native` layer (CL-1..CL-20): pure tokens, ten themes, ThemeProvider and IconProvider, 13 components, stories (Light, Dark, EasyView), per-component docs, golden tokens.json and themes.css. qa-tdd green 3x; privacy-security PASS (P2 notes PS-R1..R4).
