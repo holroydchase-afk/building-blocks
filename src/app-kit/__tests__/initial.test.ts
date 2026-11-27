@@ -4,11 +4,11 @@ import { initialOf } from '../format';
 
 describe('UI-27 avatar initial', () => {
   it.each([
-    ['The Millers', 'M'],
+    ['The Smiths', 'S'],
     ['the smiths', 'S'],
     ['Sam', 'S'],
     ['Theo', 'T'],
-    ['  grandma Jo', 'GJ'],
+    ['  ann Jo', 'AJ'],
     ['The', 'T'],
     ['', '?'],
   ])('UI-27 %p → %p', (name, want) => {
@@ -17,24 +17,24 @@ describe('UI-27 avatar initial', () => {
 });
 
 // the first letters of the first two words, after skipping a leading "The"; one word stays one letter.
-describe('FIRSTMIN-1 first and second initials', () => {
+describe('first and second initials', () => {
   it.each([
-    ['Grandma Jo', 'GJ'],
-    ['Grandpa Earl', 'GE'],
+    ['Jo Ann', 'JA'],
+    ['Jo Bee', 'JB'],
     ['Nana Ruth', 'NR'],
     ['Sam', 'S'],
-    ['The Millers', 'M'],
-    ['The Smith Family', 'SF'],
-    ['  grandma   jo  ', 'GJ'],
+    ['The Smiths', 'S'],
+    ['The Smith Team', 'ST'],
+    ['  ann   jo  ', 'AJ'],
     ['Mary Ann Lee', 'MA'],
     ['', '?'],
     ['   ', '?'],
-  ])('FIRSTMIN-1 %p → %p', (name, want) => {
+  ])('%p → %p', (name, want) => {
     expect(initialOf(name)).toBe(want);
   });
 
-  it('FIRSTMIN-1 Grandma Jo and Grandpa Earl no longer share an initial', () => {
-    expect(initialOf('Grandma Jo')).not.toBe(initialOf('Grandpa Earl'));
+  it('Jo Ann and Jo Bee no longer share an initial', () => {
+    expect(initialOf('Jo Ann')).not.toBe(initialOf('Jo Bee'));
   });
 });
 
@@ -43,7 +43,7 @@ describe('plural and list helpers', () => {
     const { count } = require('../format') as { count: (n: number, one: string, many?: string) => string };
     expect(count(1, 'person', 'people')).toBe('1 person');
     expect(count(0, 'person', 'people')).toBe('0 people');
-    expect(count(3, 'photo')).toBe('3 photos');
+    expect(count(3, 'item')).toBe('3\u00a0items');
   });
   it('andList joins names with commas and "and", dropping blanks and repeats', () => {
     const { andList } = require('../format') as { andList: (n: string[]) => string };
