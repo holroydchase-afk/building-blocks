@@ -4,12 +4,27 @@ import React, { Component, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, Txt } from '../native';
 
+/** What a reporter may see of an error. */
+export interface SafeError { name: string; code?: string }
+
+const CODE = /^[A-Za-z0-9_]{1,20}$/;
+function safeError(e: unknown): SafeError {
+  const name = e instanceof Error && /^[A-Za-z][A-Za-z0-9_]{0,59}$/.test(e.name) ? e.name : 'Error';
+  const code = (e as { code?: unknown } | null)?.code;
+  return typeof code === 'string' && CODE.test(code) ? { name, code } : { name };
+}
+
 interface Props {
   children: ReactNode;
   /** Who to call. */
   helper?: string | null;
-  /** Called with the error and the screen name. A throw inside it is swallowed: a report must never cause a second error. */
-  onError?: (error: unknown, screen: string) => void | Promise<void>;
+  /**
+   * Called with the error's type and code only (never its message or stack, which can hold a caption, URL or
+   * email) and the screen name. A throw or rejection inside it is swallowed: a report must never cause a second
+   * error. "Try again" re-renders the same children, so a deterministic failure calls this again; de-duplicate
+   * in the reporter if it sends over the network.
+   */
+  onError?: (error: SafeError, screen: string) => void | Promise<void>;
   screen?: string;
   title?: string;
   /** Replaces the default sentence (which names `helper`). */
@@ -27,7 +42,7 @@ export class ErrorBoundary extends Component<Props, { failed: boolean }> {
     // Only the error's type is logged, never its message (it may hold a caption, a URL or an email).
     console.warn('Screen error', e instanceof Error ? e.name : typeof e);
     try {
-      void Promise.resolve(this.props.onError?.(e, this.props.screen ?? 'app')).catch(() => {});
+      void Promise.resolve(this.props.onError?.(safeError(e), this.props.screen ?? 'app')).catch(() => {});
     } catch { /* a report must never cause a second error */ }
   }
   override render() {

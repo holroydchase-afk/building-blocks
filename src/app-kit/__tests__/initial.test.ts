@@ -53,3 +53,14 @@ describe('plural and list helpers', () => {
     expect(andList(['A', '', 'B', 'A', 'C'])).toBe('A, B and C');
   });
 });
+
+describe('shortDate and longDay', () => {
+  it('read the local calendar day, and a bad date reads nothing', () => {
+    const { shortDate, longDay } = require('../format') as { shortDate: (s: string) => string; longDay: (s: string) => string };
+    const d = new Date(2026, 9, 11, 12, 0, 0).toISOString(); // local noon, so the zone cannot move the day
+    expect(shortDate(d)).toBe('Sun, Oct 11');
+    expect(longDay(d)).toBe('October 11');
+    expect(shortDate('nope')).toBe('');
+    expect(longDay('nope')).toBe('');
+  });
+});

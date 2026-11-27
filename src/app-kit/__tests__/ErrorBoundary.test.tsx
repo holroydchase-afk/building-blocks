@@ -30,18 +30,41 @@ describe('ErrorBoundary', () => {
     expect(screen.queryByText('Something went wrong.')).toBeNull();
   });
 
-  it('hands the error and the screen name to onError, and a throwing onError never causes a second error', () => {
+  it('hands onError only the error type and code (never the message or stack) and the screen name', () => {
     const seen: Array<[unknown, string]> = [];
     wrap(<ErrorBoundary screen="Home" onError={(e, s) => { seen.push([e, s]); }}><Bomb /></ErrorBoundary>);
     expect(seen).toHaveLength(1);
+    expect(seen[0]?.[0]).toEqual({ name: 'Error' });
+    expect(JSON.stringify(seen)).not.toMatch(/secret|user@example|private/);
     expect(seen[0]?.[1]).toBe('Home');
-    cleanupThrow();
   });
 
-  function cleanupThrow() {
-    wrap(<ErrorBoundary onError={() => { throw new Error('reporter broke'); }}><Bomb /></ErrorBoundary>);
-    expect(screen.getAllByText('Something went wrong.').length).toBeGreaterThan(0);
-  }
+  it('passes a string code through, and a non-error throw reads as Error', () => {
+    const seen: unknown[] = [];
+    function Coded(): never { throw Object.assign(new TypeError('x'), { code: 'PGRST301' }); }
+    wrap(<ErrorBoundary onError={(e) => { seen.push(e); }}><Coded /></ErrorBoundary>);
+    expect(seen[0]).toEqual({ name: 'TypeError', code: 'PGRST301' });
+  });
+
+  it('a throwing onError still shows the sentence', () => {
+    const onError = jest.fn(() => { throw new Error('reporter broke'); });
+    wrap(<ErrorBoundary onError={onError}><Bomb /></ErrorBoundary>);
+    expect(onError).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('Something went wrong.')).toBeTruthy();
+  });
+
+  it('a rejecting onError is swallowed too', async () => {
+    const onError = jest.fn(() => Promise.reject(new Error('network down')));
+    wrap(<ErrorBoundary onError={onError}><Bomb /></ErrorBoundary>);
+    await Promise.resolve();
+    expect(onError).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('Something went wrong.')).toBeTruthy();
+  });
+
+  it('with no helper the sentence points to the person who set it up', () => {
+    wrap(<ErrorBoundary><Bomb /></ErrorBoundary>);
+    expect(screen.getByText('Close the app and open it again. If it keeps happening, call the person who set it up for you.')).toBeTruthy();
+  });
 
   it('never logs the error message, only its type', () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
