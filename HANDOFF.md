@@ -3,7 +3,7 @@
 stage: review
 goal: building-blocks
 milestone: CL-M1
-now: PRs 1-3, 8, 10 (tiles), 11 (BottomSheet), 12 (photo look) merged; PR 13 (platform media pieces) open; this PR: the web upload byte store, generic (`createUploadStore`, Hearth's item and clean-check types injected). Queue: runtime/error patterns, then Hearth imports
+now: PRs 1-3, 8, 10 (tiles), 11 (BottomSheet), 12 (photo look) and 13 (platform media pieces) merged; PR open: the web upload byte store, generic (`createUploadStore`, the item and clean-check types injected). Queue: runtime/error patterns, then Hearth imports
 next: tiles (FaceTile, AddTile, AddPhotoCard, PostcardStamp) and photo look helpers, then media and upload platform pieces, then runtime and fake-runtime pattern, error messages, problem log, error report; then Hearth's import PRs after a re-diff
 waiting_on_chase: []
 blockers: []
