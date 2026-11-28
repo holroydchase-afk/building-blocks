@@ -518,7 +518,7 @@ export function BottomSheet({ testID, label, onClose, closeLabel = 'Close', chil
         <SafeAreaView edges={['bottom']} testID={testID} accessibilityLabel={label} accessibilityViewIsModal aria-modal
           style={[styles.menu, { backgroundColor: c.surface, borderTopLeftRadius: corner, borderTopRightRadius: corner }]}>
           {/* The swipe lives on the grabber strip, so a swipe inside tall content scrolls it instead of closing. */}
-          <View style={styles.grabStrip} {...drag.panHandlers}>
+          <View testID={`${testID}-grab`} style={styles.grabStrip} {...drag.panHandlers}>
             <View style={[styles.grabber, { backgroundColor: c.muted }]} {...hidden} />
           </View>
           <ScrollView testID={`${testID}-scroll`} style={styles.sheetBody} contentContainerStyle={styles.sheetContent} keyboardShouldPersistTaps="handled">{children}</ScrollView>
@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
   alertBtn: { flex: 1, minHeight: MIN_TARGET, alignItems: 'center', justifyContent: 'center', paddingHorizontal: SPACE.sm, paddingVertical: 10 },
   sheetScrim: { flex: 1, justifyContent: 'flex-end' },
   menu: { width: '100%', maxWidth: 560, maxHeight: '88%', alignSelf: 'center', paddingHorizontal: 20, paddingBottom: 20, gap: 14 },
-  grabStrip: { alignSelf: 'stretch', paddingVertical: SPACE.sm },
+  grabStrip: { alignSelf: 'stretch', minHeight: MIN_TARGET, justifyContent: 'center' },
   sheetBody: { flexShrink: 1 },
   sheetContent: { gap: 14 },
   grabber: { alignSelf: 'center', width: 36, height: 5, borderRadius: RADIUS.pill, opacity: 0.5 },

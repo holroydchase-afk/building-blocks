@@ -16,3 +16,13 @@ const render = () => (
 export const Light = { render, globals: LIGHT };
 export const Dark = { render, globals: DARK };
 export const EasyView = { render, globals: EASY };
+
+/** Twenty rows: the sheet stops at 88% of the screen, the rows scroll and Close stays in view. */
+export const LongContent = {
+  render: () => (
+    <BottomSheet testID="sheet" label="Many options" onClose={noop}>
+      {Array.from({ length: 20 }, (_v, i) => <MenuRow key={i} text={`Option ${i + 1}`} icon={{ sf: 'circle', md: 'circle' }} onPress={noop} />)}
+    </BottomSheet>
+  ),
+  globals: EASY,
+};

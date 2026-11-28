@@ -253,6 +253,14 @@ describe('CL-17 AlertDialog and BottomSheet trap nothing silently', () => {
     expect(screen.getByTestId('sheet-scroll')).toBeTruthy();
   });
 
+  it('CL-29 UX-R1 the swipe strip is a 48 pt target and UX-R4 20 rows still leave Close and the scroll container', () => {
+    render(<AnyBottomSheet testID="sheet" label="Long" onClose={() => {}}>{Array.from({ length: 20 }, (_v, i) => <Txt key={i}>{`Row ${i}`}</Txt>)}</AnyBottomSheet>);
+    expect(flat(screen.getByTestId('sheet-grab').props.style).minHeight).toBeGreaterThanOrEqual(MIN_TARGET);
+    expect(screen.getByTestId('sheet-scroll')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Close' })).toBeTruthy();
+    expect(screen.getByText('Row 19')).toBeTruthy();
+  });
+
   it('CL-17 BottomSheet keeps a Text node for its Close word (not an icon only)', () => {
     render(<AnyBottomSheet testID="sheet" label="Sort options" onClose={() => {}}><Txt>x</Txt></AnyBottomSheet>);
     const words = screen.UNSAFE_getAllByType(Text).filter((t) => t.props.children === 'Close');
