@@ -10,5 +10,5 @@
     "verify": "",
     "runs": 3
   },
-  "private": {}
+  "private": { "skip": ["^src/app-kit/__tests__/"] }
 }

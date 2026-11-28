@@ -4,3 +4,7 @@
 export { ErrorBoundary, type SafeError } from './ErrorBoundary';
 export { andList, count, initialOf, longDay, LONG_MONTHS, relativeTime, shortDate, SHORT_MONTHS } from './format';
 export { createNavContext } from './nav';
+export { buildErrorReport, describeOs, type ErrorReport } from './errorReport';
+export { classifyError, loadFailedWords, loadFailure, type LoadFailure } from './errors';
+export { createProblemLog, type ProblemEntry, type ProblemLogOptions } from './problemLog';
+export { hasPhone, safeMessage, scrubPhone } from './scrub';
