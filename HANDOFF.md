@@ -3,7 +3,7 @@
 stage: review
 goal: building-blocks
 milestone: CL-M1
-now: PRs 1-3, 8 and 10 (tiles) merged; PR 11 open (BottomSheet is the bottom drawer: tap outside, width and height caps, scrolling body); this PR adds the photo look (`photoShadow`, docs/design/PHOTO-LOOK.md). Queue: media and upload platform pieces, runtime/error patterns, then Hearth imports
+now: PRs 1-3, 8, 10 (tiles) and 11 (BottomSheet as the bottom drawer: tap outside, width and height caps, scrolling body) merged; PR 12 open: the photo look (`photoShadow`, docs/design/PHOTO-LOOK.md). Queue: media and upload platform pieces, runtime/error patterns, then Hearth imports
 next: tiles (FaceTile, AddTile, AddPhotoCard, PostcardStamp) and photo look helpers, then media and upload platform pieces, then runtime and fake-runtime pattern, error messages, problem log, error report; then Hearth's import PRs after a re-diff
 waiting_on_chase: []
 blockers: []
