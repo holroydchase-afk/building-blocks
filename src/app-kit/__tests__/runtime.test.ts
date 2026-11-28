@@ -68,8 +68,8 @@ describe('CL-35 chainClears', () => {
   });
 
   it('CL-35 nothing to run (no steps, or all undefined) resolves', async () => {
-    await expect(chainClears()()).resolves.toBeUndefined();
-    await expect(chainClears(undefined, undefined)()).resolves.toBeUndefined();
+    await expect(chainClears()()).resolves.toBe(0); // PS-R2: resolves to the number of failed steps
+    await expect(chainClears(undefined, undefined)()).resolves.toBe(0);
   });
 
   it('CL-35 a step that rejects does not stop the later ones, and the chain never rejects', async () => {
@@ -80,14 +80,14 @@ describe('CL-35 chainClears', () => {
       async () => { ran.push('c'); return Promise.reject('c failed'); }, // a non-Error rejection
       async () => { ran.push('d'); },
     );
-    await expect(clear()).resolves.toBeUndefined();
+    await expect(clear()).resolves.toBe(2); // PS-R2: a and c failed
     expect(ran).toEqual(['a', 'b', 'c', 'd']);
   });
 
   it('CL-35 a step that throws at once (not a rejected promise) is survived the same way', async () => {
     const ran: string[] = [];
     const sync = ((): Promise<void> => { throw new Error('sync'); });
-    await expect(chainClears(sync, async () => { ran.push('after'); })()).resolves.toBeUndefined();
+    await expect(chainClears(sync, async () => { ran.push('after'); })()).resolves.toBe(1); // PS-R2
     expect(ran).toEqual(['after']);
   });
 
@@ -102,7 +102,7 @@ describe('CL-35 chainClears', () => {
   it('CL-35 hostile: a null or non-function entry is not called as one and does not break the chain', async () => {
     const ran: string[] = [];
     const clear = chainClears(null as never, 'x' as never, async () => { ran.push('ok'); });
-    await expect(clear()).resolves.toBeUndefined();
+    await expect(clear()).resolves.toBe(0); // PS-R2: skipped entries are not failures
     expect(ran).toEqual(['ok']);
   });
 });
