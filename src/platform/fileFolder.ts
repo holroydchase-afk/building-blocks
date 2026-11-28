@@ -22,7 +22,8 @@ export interface FolderStore {
 export function createFileFolder({ folder, accepts }: { folder: string; accepts: RegExp }): FolderStore {
   if (!/^[A-Za-z0-9._-]+$/.test(folder) || folder.startsWith('.')) throw new Error('bad folder');
   const rule = new RegExp(accepts.source, accepts.flags.replace(/[gy]/g, '')); // a g or y flag would make the rule remember its last match
-  const ok = (n: string) => n.length > 0 && !n.startsWith('.') && !n.includes('/') && !n.includes('\\') && rule.test(n);
+  // The floor under the app's rule: plain letters, digits, dot, dash and underscore only, so a lax rule cannot let an encoded or odd name through.
+  const ok = (n: string) => /^[A-Za-z0-9._-]{1,128}$/.test(n) && !n.startsWith('.') && rule.test(n);
   const dir = () => new Directory(Paths.cache, folder);
   return {
     async read(name) {

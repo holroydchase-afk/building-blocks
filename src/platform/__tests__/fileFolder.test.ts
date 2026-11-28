@@ -130,3 +130,14 @@ describe('PL-21 createBlobUrls (phone)', () => {
     expect(() => createBlobUrls({ type: 'video/mp4' })).toThrow('use createFileFolder');
   });
 });
+
+describe('PL-20 PS-R1/R2 built-in floor under the app\'s rule', () => {
+  it.each(['%2e%2e', 'a?b', 'a#b', 'a\u0000b', '..', 'a\nb', 'x'.repeat(129)])('a lax rule still never lets %j through', async (name) => {
+    const f = createFileFolder({ folder: 'lax', accepts: /./ });
+    expect(await f.read(name)).toBeNull();
+    await expect(f.write(name, Uint8Array.from([1]))).rejects.toThrow('bad name');
+  });
+  it.each(['/../x', 'a/b', '', 'jpg.exe/', '123456789'])('the save extension %j is refused when the function is made', (extension) => {
+    expect(() => createSaveToPhone({ library: { requestPermissionsAsync: async () => ({ granted: true }), saveToLibraryAsync: async () => undefined }, extension })).toThrow('bad extension');
+  });
+});

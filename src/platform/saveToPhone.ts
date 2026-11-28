@@ -14,6 +14,7 @@ export interface MediaLibraryLike {
 
 export function createSaveToPhone({ library, extension = 'jpg' }: { library: MediaLibraryLike; extension?: string }):
   (bytes: Uint8Array, name: string) => Promise<SaveResult> {
+  if (!/^[A-Za-z0-9]{1,8}$/.test(extension)) throw new Error('bad extension');
   return async (bytes, name) => {
     if (!/^[A-Za-z0-9._-]+$/.test(name) || name.startsWith('.')) throw new Error('bad name');
     const perm = await library.requestPermissionsAsync(true);

@@ -50,3 +50,9 @@ describe('PL-22 createSaveToPhone (web)', () => {
     expect(clicks).toEqual([{ href: 'blob:1', download: 'pic.jpg' }]);
   });
 });
+
+describe('PL-22 PS-R2 web extension', () => {
+  it('refuses a bad extension when made', () => {
+    expect(() => webSave({ extension: '/../x' })).toThrow('bad extension');
+  });
+});
