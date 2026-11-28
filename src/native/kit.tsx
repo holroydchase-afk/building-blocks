@@ -512,11 +512,16 @@ export function BottomSheet({ testID, label, onClose, closeLabel = 'Close', chil
   const corner = dialogRadius(os);
   return (
     <Modal transparent visible animationType={reduceMotion ? 'fade' : 'slide'} onRequestClose={onClose}>
-      <View style={[styles.sheetScrim, { backgroundColor: c.scrim }]}>
-        <SafeAreaView edges={['bottom']} testID={testID} accessibilityLabel={label} accessibilityViewIsModal aria-modal {...drag.panHandlers}
+      <View style={styles.sheetScrim}>
+        {/* A tap outside closes it. Not a second Close for screen readers: the visible Close button below is the one. */}
+        <Pressable testID={`${testID}-scrim`} accessible={false} importantForAccessibility="no" onPress={onClose} style={[StyleSheet.absoluteFill, { backgroundColor: c.scrim }]} />
+        <SafeAreaView edges={['bottom']} testID={testID} accessibilityLabel={label} accessibilityViewIsModal aria-modal
           style={[styles.menu, { backgroundColor: c.surface, borderTopLeftRadius: corner, borderTopRightRadius: corner }]}>
-          <View style={[styles.grabber, { backgroundColor: c.muted }]} {...hidden} />
-          {children}
+          {/* The swipe lives on the grabber strip, so a swipe inside tall content scrolls it instead of closing. */}
+          <View style={styles.grabStrip} {...drag.panHandlers}>
+            <View style={[styles.grabber, { backgroundColor: c.muted }]} {...hidden} />
+          </View>
+          <ScrollView testID={`${testID}-scroll`} style={styles.sheetBody} contentContainerStyle={styles.sheetContent} keyboardShouldPersistTaps="handled">{children}</ScrollView>
           <Button label={closeLabel} variant="quiet" onPress={onClose} />
         </SafeAreaView>
       </View>
@@ -530,7 +535,10 @@ const styles = StyleSheet.create({
   alertRow: { flexDirection: 'row', borderTopWidth: StyleSheet.hairlineWidth },
   alertBtn: { flex: 1, minHeight: MIN_TARGET, alignItems: 'center', justifyContent: 'center', paddingHorizontal: SPACE.sm, paddingVertical: 10 },
   sheetScrim: { flex: 1, justifyContent: 'flex-end' },
-  menu: { padding: 20, paddingTop: SPACE.sm, gap: 14 },
+  menu: { width: '100%', maxWidth: 560, maxHeight: '88%', alignSelf: 'center', paddingHorizontal: 20, paddingBottom: 20, gap: 14 },
+  grabStrip: { alignSelf: 'stretch', paddingVertical: SPACE.sm },
+  sheetBody: { flexShrink: 1 },
+  sheetContent: { gap: 14 },
   grabber: { alignSelf: 'center', width: 36, height: 5, borderRadius: RADIUS.pill, opacity: 0.5 },
   menuRow: { minHeight: MIN_TARGET + 12, minWidth: MIN_TARGET, alignSelf: 'stretch', flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 10 },
   iconBtn: { flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: MIN_TARGET + 12, minWidth: MIN_TARGET + 12, paddingHorizontal: 6, gap: 2 },

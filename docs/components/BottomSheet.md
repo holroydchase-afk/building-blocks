@@ -1,7 +1,7 @@
 # BottomSheet
 
 ## What it is for
-A sheet from the bottom of the screen for a short list of options or a small task. It has a grabber and closes with a swipe down, and always a visible Close button.
+A sheet from the bottom of the screen for a short list of options or a small task. It has a grabber and closes with a swipe down on the grabber, a tap outside, the phone's back action or Esc on the web, and always a visible Close button. It is at most 560 wide (centred on big screens) and 88% of the screen tall; tall content scrolls inside while Close stays in view.
 
 ```tsx
 import { BottomSheet } from '@holroyd/building-blocks/native';
@@ -19,10 +19,10 @@ import { BottomSheet } from '@holroyd/building-blocks/native';
 - Name the sheet in `label` by what it is for ("Sort options").
 
 **Don't**
-- Don't rely on the swipe; the Close button always stays.
+- Don't rely on the swipe or the tap outside; the Close button always stays.
 - Don't stack sheets.
 
 ## Accessibility
-The sheet has an accessible name and is marked modal. The visible Close button is a full `Button` (labelled, 48 pt), so closing never needs a gesture. With the phone's Reduce Motion on, the sheet fades in instead of sliding.
+The sheet has an accessible name and is marked modal. The tap-outside area is hidden from screen readers, so there is only one Close. The visible Close button is a full `Button` (labelled, 48 pt), so closing never needs a gesture. With the phone's Reduce Motion on, the sheet fades in instead of sliding.
 
 Stories: `src/native/stories/BottomSheet.stories.tsx` (Light, Dark, EasyView).

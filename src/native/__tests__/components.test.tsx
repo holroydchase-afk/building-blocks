@@ -234,6 +234,25 @@ describe('CL-17 AlertDialog and BottomSheet trap nothing silently', () => {
     expect(screen.getByText('Done')).toBeTruthy();
   });
 
+  it('CL-29 BottomSheet closes on a tap outside it, and the scrim is not a second Close button for screen readers', () => {
+    const onClose = jest.fn();
+    render(<AnyBottomSheet testID="sheet" label="Sort options" onClose={onClose}><Txt>x</Txt></AnyBottomSheet>);
+    const scrim = screen.getByTestId('sheet-scrim', { includeHiddenElements: true });
+    expect(scrim.props.accessible).toBe(false);
+    fireEvent.press(scrim);
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(screen.getAllByRole('button', { name: 'Close' })).toHaveLength(1);
+  });
+
+  it('CL-29 BottomSheet is capped at 560 wide and 88% tall, centred, with its content scrolling and Close kept in view', () => {
+    render(<AnyBottomSheet testID="sheet" label="Sort options" onClose={() => {}}><Txt>x</Txt></AnyBottomSheet>);
+    const sheet = flat(screen.getByTestId('sheet').props.style);
+    expect(sheet.maxWidth).toBe(560);
+    expect(sheet.maxHeight).toBe('88%');
+    expect(sheet.width).toBe('100%');
+    expect(screen.getByTestId('sheet-scroll')).toBeTruthy();
+  });
+
   it('CL-17 BottomSheet keeps a Text node for its Close word (not an icon only)', () => {
     render(<AnyBottomSheet testID="sheet" label="Sort options" onClose={() => {}}><Txt>x</Txt></AnyBottomSheet>);
     const words = screen.UNSAFE_getAllByType(Text).filter((t) => t.props.children === 'Close');

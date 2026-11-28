@@ -3,7 +3,7 @@
 stage: review
 goal: building-blocks
 milestone: CL-M1
-now: PRs 1-3 and 8 merged; PR open: tiles (AvatarTile, AddTile, AddCard, DateStamp). Queue: bottom drawer (generic slide-up drawer from Hearth's demo drawer, PR 230, no demo content; Chase Nov 27), photo look helpers, media and upload platform pieces, runtime/error patterns, then Hearth imports
+now: PRs 1-3, 8 and 10 (tiles) merged; PR open: BottomSheet upgrade (the bottom drawer: BottomSheet already existed, so Hearth's demo drawer behaviour became tap outside, width and height caps, scrolling body; the portfolio open/close events stay in Hearth). Queue: photo look helpers, media and upload platform pieces, runtime/error patterns, then Hearth imports
 next: tiles (FaceTile, AddTile, AddPhotoCard, PostcardStamp) and photo look helpers, then media and upload platform pieces, then runtime and fake-runtime pattern, error messages, problem log, error report; then Hearth's import PRs after a re-diff
 waiting_on_chase: []
 blockers: []
