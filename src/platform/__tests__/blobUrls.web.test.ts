@@ -56,3 +56,9 @@ describe('PL-22 PS-R2 web extension', () => {
     expect(() => webSave({ extension: '/../x' })).toThrow('bad extension');
   });
 });
+
+describe('PL-22 QA-R1/R2 web save names', () => {
+  it.each(['../pic', 'a/b', '', '.hidden', 'x'.repeat(129)])('refuses the name %j', async (name) => {
+    await expect(webSave()(Uint8Array.from([1]), name)).rejects.toThrow('bad name');
+  });
+});

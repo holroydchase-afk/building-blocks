@@ -141,3 +141,10 @@ describe('PL-20 PS-R1/R2 built-in floor under the app\'s rule', () => {
     expect(() => createSaveToPhone({ library: { requestPermissionsAsync: async () => ({ granted: true }), saveToLibraryAsync: async () => undefined }, extension })).toThrow('bad extension');
   });
 });
+
+describe('PL-22 QA-R1 save name length', () => {
+  it('refuses a name over 128 characters on the phone too', async () => {
+    const l = { requestPermissionsAsync: async () => ({ granted: true }), saveToLibraryAsync: async () => undefined };
+    await expect(createSaveToPhone({ library: l })(Uint8Array.from([1]), 'x'.repeat(129))).rejects.toThrow('bad name');
+  });
+});
