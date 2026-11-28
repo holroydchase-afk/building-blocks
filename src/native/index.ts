@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Chase Holroyd
 // The one public entry of the /native layer: import from '@holroyd/building-blocks/native', never a deep path.
 export {
-  contrast, dialogRadius, FONT_STACK, iconSize, LABEL_SCALE_CAP, MATERIAL_ROLES, MIN_TARGET, mix, paletteFor, portableTokens, RADIUS,
+  contrast, dialogRadius, FONT_STACK, iconSize, LABEL_SCALE_CAP, MATERIAL_ROLES, MIN_TARGET, mix, paletteFor, photoShadow, portableTokens, RADIUS,
   SPACE, TEXT_STYLES, THEME_NAMES, themesCss, TYPE,
   type Colors, type FontWeightName, type OS, type TextStyleName, type TextStyleSpec, type ThemeName,
 } from './tokens';
