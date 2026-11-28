@@ -3,7 +3,7 @@
 stage: review
 goal: building-blocks
 milestone: CL-M1
-now: PRs 1-3, 8, 10-13 merged; PR 14 (web upload store) open; this PR: error helpers in app-kit (`safeMessage`, `buildErrorReport`, `createProblemLog`, `classifyError`, `loadFailedWords`). Queue: state patterns (prefs, last seen, runtime and fake runtime), then Hearth imports
+now: PRs 1-3, 8, 10-14 merged; this PR: error helpers in app-kit (`safeMessage`, `buildErrorReport`, `createProblemLog`, `classifyError`, `loadFailedWords`). Queue: state patterns (prefs, last seen, runtime and fake runtime), then Hearth imports
 next: tiles (FaceTile, AddTile, AddPhotoCard, PostcardStamp) and photo look helpers, then media and upload platform pieces, then runtime and fake-runtime pattern, error messages, problem log, error report; then Hearth's import PRs after a re-diff
 waiting_on_chase: []
 blockers: []
