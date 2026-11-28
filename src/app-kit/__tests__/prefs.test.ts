@@ -7,7 +7,7 @@
 //   load gives defaults on missing, bad JSON, non-object JSON, a store that throws, or a sanitize that throws; sanitize only
 //   sees a parsed object. save writes only JSON.stringify(value) and never throws.
 //   pickBoolean(raw: unknown, fallback: boolean): boolean; pickOneOf<T extends string>(raw: unknown, allowed: readonly T[], fallback: T): T
-import { memoryKV, type KV } from '../../platform/kv';
+import { memoryKV, type KV } from '../../platform';
 import { createPrefs, pickBoolean, pickOneOf } from '../prefs';
 
 type Mode = 'light' | 'dark' | 'system';

@@ -4,7 +4,7 @@
 // last-visit tests. Contract, src/app-kit/lastSeen.ts:
 //   export function createLastSeen(o: { kv: KV; keyPrefix: string }): { load(userId: string): Promise<string | null>; save(userId: string, iso: string): Promise<void> }
 //   key is `${keyPrefix}.${userId}`; load gives null when empty, damaged, not a date or the store throws; save never throws.
-import { memoryKV, type KV } from '../../platform/kv';
+import { memoryKV, type KV } from '../../platform';
 import { createLastSeen } from '../lastSeen';
 
 const throwing = (sync: boolean): KV => {

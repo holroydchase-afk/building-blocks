@@ -13,7 +13,7 @@ import { createSplitSaver, idbObjects, objectsPresent, type ObjectStore } from '
 type S = { objects: Record<string, string>; tag?: string };
 
 function memStore(fail = false) {
-  const data: Record<string, string> = {};
+  const data: Record<string, string> = Object.create(null) as Record<string, string>;
   const puts: string[][] = [];
   const store: ObjectStore = {
     getAll: async () => ({ ...data }),

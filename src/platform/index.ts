@@ -13,3 +13,4 @@ export { createUploadStore, indexedDbUploadDb, type ByteSealer, type Prepared, t
 export { createFileFolder, type FolderStore } from './fileFolder';
 export { createBlobUrls, type BlobUrls } from './blobUrls';
 export { createSaveToPhone, type MediaLibraryLike, type SaveResult } from './saveToPhone';
+export { createSplitSaver, idbObjects, objectsPresent, type ObjectStore, type SplitSaver } from './objectStore';
