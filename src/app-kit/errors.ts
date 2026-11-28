@@ -25,7 +25,8 @@ export function loadFailure(e: unknown): LoadFailure {
 /** The title and line for a list that failed to load. Never the server's words, never a made-up contact: `helper` is the
  *  name of a real person to call, when there is one. `reassure` is a sentence that goes first ("Your things are safe."). */
 export function loadFailedWords(kind: LoadFailure, opts: { helper?: string | null; reassure?: string } = {}): { title: string; line: string } {
-  const safe = opts.reassure ? `${opts.reassure.trim()} ` : '';
+  const r = opts.reassure?.trim();
+  const safe = r ? `${r} ` : '';
   const who = opts.helper?.trim();
   if (kind === 'network') return { title: 'No signal right now', line: `${safe}Check your Wi-Fi or signal, then tap Try again.` };
   return { title: 'Something went wrong', line: `${safe}Tap Try again${who ? `, or call ${who}` : ''}.` };

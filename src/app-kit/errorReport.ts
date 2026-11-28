@@ -11,8 +11,8 @@ const SCREEN = /^[A-Za-z0-9_/[\]-]{1,40}$/;
 const CODE = /^[A-Za-z0-9_]{1,20}$/;
 const VERSION = /^[0-9A-Za-z.+-]{1,20}$/;
 const OS = /^(ios|android|web)( [0-9.]{1,12})?$/;
-/** A screen name carries a route template (`post/[id]`), never a resolved id: 6 or more digits, or 12 or more letters and digits in a row, is refused. */
-const looksResolved = (s: string) => /\d{6,}/.test(s) || /[A-Za-z0-9]{12,}/.test(s) || /[0-9a-f]{8}-[0-9a-f]{4}/i.test(s) || (s.match(/\d/g)?.length ?? 0) >= 6;
+/** A screen name carries a route template (`post/[id]`), never a resolved id: 6 or more digits, or 12 or more letters and digits in a row with a digit among them, is refused. */
+const looksResolved = (s: string) => /\d{6,}/.test(s) || /(?=[A-Za-z0-9]*\d)[A-Za-z0-9]{12,}/.test(s) || /[0-9a-f]{8}-[0-9a-f]{4}/i.test(s) || (s.match(/\d/g)?.length ?? 0) >= 6;
 
 /** `appVersion` and `os` come from the app (such as "ios 18.1"); `screen` is a route name, not a person's words. */
 export function buildErrorReport(e: unknown, screen: string, ctx: { appVersion: string; os: string }): ErrorReport {

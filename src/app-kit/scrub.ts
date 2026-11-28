@@ -25,20 +25,21 @@ export function safeMessage(raw: string, scrub: (string | null | undefined)[] = 
   // Picture metadata: everything from the first metadata word on is dropped.
   m = m.replace(/\b(GPS\w*|Latitude|Longitude|Lens\w*|Serial\w*|DateTime\w*|MakerNote|XMP|ICC|Exif\w*)\b[\s\S]*$/i, '[photo info removed]');
   m = m.replace(/\b(Make|Model|Software)\s*[:=][\s\S]*$/i, '[photo info removed]');
-  m = m.replace(/"[^"]*"|“[^”]*”|'[^']{2,}'/g, '[text]'); // quoted text is usually a caption or name
+  m = m.replace(/"[^"]*"|“[^”]*”|‘[^’]*’|'[^']{2,}'/g, '[text]'); // quoted text is usually a caption or name
   m = m.replace(/["“][^"”]*$/, '[text]'); // a quote that never closes (a cut-off message)
   m = m.replace(/\bBearer\s+\S+/gi, 'Bearer [hidden]');
   m = m.replace(/\b(password|passcode|secret|token|key)\s+(?:is|was)\s+\S+/gi, '$1 [hidden]');
   m = m.replace(/\b[a-z][a-z0-9+.-]*:\/\/\S*/gi, '[url]');
   m = m.replace(/\b(?:file|content|ph|assets-library|data|blob):\S*/gi, '[url]');
   m = m.replace(/\b(?:[a-z0-9-]+\.)+[a-z]{2,}\/\S*/gi, '[url]'); // a host with a path
-  m = m.replace(/[\w.+-]+@[\w.-]+/g, '[email]');
+  m = m.replace(/[\p{L}\p{N}._+-]+@[\p{L}\p{N}.-]+/gu, '[email]');
   m = m.replace(/\b[A-Za-z]:\\\S*|\\\\\S+/g, '[path]'); // C:\Users\... and \\server\share
   m = m.replace(/\b\d{1,3}(?:\.\d{1,3}){3}\b/g, '[ip]');
   m = m.replace(/\b[0-9a-f]{1,4}(?::[0-9a-f]{0,4}){2,7}\b/gi, '[ip]');
   m = scrubPhone(m);
   m = m.replace(/\b(key|dek|token|secret|signature|sig|password|apikey|auth\w*|credential)\b\s*[:=]\s*\S+/gi, '$1=[hidden]');
   m = m.replace(/\beyJ[\w-]*\.[\w-]*\.?[\w-]*/g, '[token]');
+  m = m.replace(/\/(?:Users|home)\/(?:[^/\n]+\/)*[^/\s]*/g, '[path]'); // a home folder: its names can hold spaces
   m = m.replace(/(?:~|\.{1,2})?\/[^\s]+/g, '[path]');
   m = m.replace(/\b[\w-]+\.(?:jpe?g|heic|heif|png|gif|webp|mov|mp4|m4v|dng)\b/gi, '[file]');
   m = m.replace(/[A-Za-z0-9+/_=-]{20,}/g, '[hidden]');
