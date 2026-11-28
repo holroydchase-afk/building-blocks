@@ -3,7 +3,7 @@
 stage: review
 goal: building-blocks
 milestone: CL-M1
-now: PRs 1-3, 8, 10 (tiles), 11 (BottomSheet) merged; PR 12 (photo look) open; next PR: media pieces for the platform layer (`createFileFolder`, `createBlobUrls`, `createSaveToPhone`, with the library injected so no new dependency). Queue: the web upload byte store (generic, with Hearth's types injected), runtime/error patterns, then Hearth imports
+now: PRs 1-3, 8, 10 (tiles), 11 (BottomSheet) and 12 (photo look) merged; PR open: media pieces for the platform layer (`createFileFolder`, `createBlobUrls`, `createSaveToPhone`, with the library injected so no new dependency). Queue: the web upload byte store (generic, with Hearth's types injected), runtime/error patterns, then Hearth imports
 next: tiles (FaceTile, AddTile, AddPhotoCard, PostcardStamp) and photo look helpers, then media and upload platform pieces, then runtime and fake-runtime pattern, error messages, problem log, error report; then Hearth's import PRs after a re-diff
 waiting_on_chase: []
 blockers: []
