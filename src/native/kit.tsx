@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { defaultIconRender, useIconRender, type Icon } from './IconProvider';
 import { useTabBarSpace } from './tabBarSpace';
 import { useTheme } from './theme';
-import { dialogRadius, iconSize, LABEL_SCALE_CAP, MIN_TARGET, RADIUS, sheetShouldClose, SPACE, type TextStyleName } from './tokens';
+import { contrast, dialogRadius, iconSize, LABEL_SCALE_CAP, MIN_TARGET, RADIUS, sheetShouldClose, SPACE, type TextStyleName } from './tokens';
 import { useTypingField } from './typing';
 
 const CLEAR = 'transparent';
@@ -222,15 +222,18 @@ export function AvatarTile({ name, count, avatars, picked, onPress, across, unit
   /** The count's word, singular and plural. */
   unit?: readonly [string, string];
 }) {
-  const { c, os, easyView, text: type } = useTheme();
+  const { c, os, easyView, highContrast, text: type } = useTheme();
   const edge = picked ? 3 : 2;
+  // The initial is text: ink on the fill, or on the surface or page when the fill is too close to ink (high contrast).
+  const need = highContrast ? 7 : 4.5;
+  const disc = [c.fill, c.surface, c.bg].find((d) => contrast(c.ink, d) >= need) ?? c.bg;
+  const ring = picked ? c.accentSoft : c.bg; // the dots and tick sit on the tile's own fill
   const words = plural(count, unit);
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`${name}, ${words}, ${picked ? 'picked' : 'not picked'}`}
-      accessibilityState={{ selected: picked }}
-      aria-pressed={picked}
+      {...(os === 'web' ? { 'aria-pressed': picked } : { accessibilityState: { selected: picked } })}
       onPress={onPress}
       android_ripple={{ color: c.line }}
       style={({ pressed }) => [styles.tile, { width: `${(100 / across).toFixed(3)}%` as `${number}%`, opacity: pressed && os !== 'android' ? 0.7 : 1 }]}
@@ -238,13 +241,13 @@ export function AvatarTile({ name, count, avatars, picked, onPress, across, unit
       <View style={[styles.tileRing, { borderWidth: edge, borderColor: picked ? c.accent : c.tabLine, backgroundColor: picked ? c.accentSoft : c.bg, paddingVertical: 12 - edge }]}>
         <View style={styles.tileStack}>
           {avatars.slice(0, 3).map((a, i) => (
-            <View key={`${a}-${i}`} style={[styles.tileDot, i ? styles.tileOverlap : null, { backgroundColor: c.line, borderColor: c.bg }]}>
+            <View key={`${a}-${i}`} testID="tile-dot" style={[styles.tileDot, i ? styles.tileOverlap : null, { backgroundColor: disc, borderColor: ring }]}>
               <Text maxFontSizeMultiplier={LABEL_SCALE_CAP} style={[type('headline'), { color: c.ink }]}>{initialOf(a)}</Text>
             </View>
           ))}
         </View>
         {picked ? (
-          <View style={[styles.tileTick, { backgroundColor: c.accent, borderColor: c.bg }]}>
+          <View testID="tile-tick" style={[styles.tileTick, { backgroundColor: c.accent, borderColor: ring }]}>
             <SystemIcon icon={{ sf: 'checkmark', md: 'check' }} color={c.accentInk} size={16} />
           </View>
         ) : null}
@@ -258,10 +261,10 @@ export function AvatarTile({ name, count, avatars, picked, onPress, across, unit
 
 /** An outlined "add" tile beside small items: a dashed edge and no fill, with the plus and the word in the accent. */
 export function AddTile({ label, text = 'Add', onPress }: { label: string; text?: string; onPress: () => void }) {
-  const { c, text: type } = useTheme();
+  const { c, os, text: type } = useTheme();
   return (
-    <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress}
-      style={({ pressed }) => [styles.addTile, { borderColor: c.line, opacity: pressed ? 0.7 : 1 }]}>
+    <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} android_ripple={{ color: c.line }}
+      style={({ pressed }) => [styles.addTile, { borderColor: c.tabLine, opacity: pressed && os !== 'android' ? 0.7 : 1 }]}>
       <SystemIcon icon={{ sf: 'plus', md: 'add' }} color={c.accent} />
       <Text maxFontSizeMultiplier={LABEL_SCALE_CAP} style={[type('headline'), { color: c.accent }]}>{text}</Text>
     </Pressable>
@@ -306,9 +309,9 @@ const STAMP_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
 /** A small decorative stamp for a card's top-right corner, marked with the month then the day. Not a control:
  *  hidden from screen readers, and touches pass through it. */
 export function DateStamp({ date: given, testID = 'date-stamp' }: { date?: Date; testID?: string }) {
-  const { c, font } = useTheme();
+  const { c, text: type } = useTheme();
   const date = given ?? new Date();
-  const mark = [styles.stampMark, font('semibold'), { color: c.accent }];
+  const mark = [type('headline'), styles.stampMark, { color: c.accent }];
   return (
     <View testID={testID} pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" aria-hidden
       style={[styles.stamp, { borderColor: c.accent, backgroundColor: c.surface }]}>
@@ -552,7 +555,7 @@ const styles = StyleSheet.create({
   addCardBody: { padding: 12 },
   spot: { alignSelf: 'stretch', aspectRatio: 4 / 3, borderRadius: 14, alignItems: 'center', justifyContent: 'center', gap: 12, padding: 12 },
   stamp: { position: 'absolute', top: 10, right: 10, minWidth: 44, minHeight: 52, paddingHorizontal: 4, transform: [{ rotate: '4deg' }], borderWidth: 2, borderStyle: 'dotted', borderRadius: RADIUS.small, alignItems: 'center', justifyContent: 'center' },
-  stampMark: { textAlign: 'center', fontSize: 17, lineHeight: 18 },
+  stampMark: { textAlign: 'center' },
   input: { minHeight: 56, paddingHorizontal: 14, paddingVertical: SPACE.md },
   card: { padding: 14, gap: SPACE.md },
   screen: { padding: SPACE.lg, gap: SPACE.lg, paddingBottom: SPACE.xxl },
