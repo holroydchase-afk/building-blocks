@@ -6,11 +6,13 @@
 /** NETWORK: no signal or a timeout. AUTH: the sign-in is no longer good. A plain code the error already carries is kept
  *  (such as a database error code); anything else is UNKNOWN. */
 export function classifyError(e: unknown): string {
-  const msg = typeof e === 'object' && e && 'message' in e ? String((e as { message: unknown }).message) : '';
-  const code = typeof e === 'object' && e && 'code' in e ? String((e as { code: unknown }).code ?? '') : '';
-  if (code === 'PGRST301' || code === 'PGRST302' || /jwt/i.test(msg)) return 'AUTH';
-  if (e instanceof TypeError || /network request failed|failed to fetch|load failed|networkerror|timed? ?out|aborted/i.test(msg)) return 'NETWORK';
-  if (/^[A-Za-z0-9_]{1,20}$/.test(code)) return code;
+  try {
+    const msg = typeof e === 'object' && e && 'message' in e ? String((e as { message: unknown }).message) : '';
+    const code = typeof e === 'object' && e && 'code' in e ? String((e as { code: unknown }).code ?? '') : '';
+    if (code === 'PGRST301' || code === 'PGRST302' || /jwt/i.test(msg)) return 'AUTH';
+    if (/network request failed|failed to fetch|load failed|networkerror|timed? ?out|aborted/i.test(msg)) return 'NETWORK';
+    if (/^[A-Za-z0-9_]{1,20}$/.test(code)) return code;
+  } catch { /* a hostile error object: nothing to classify */ }
   return 'UNKNOWN';
 }
 

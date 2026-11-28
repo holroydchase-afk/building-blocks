@@ -135,7 +135,7 @@ describe('AK-12 createProblemLog', () => {
 
 describe('AK-13 classifyError, loadFailure and loadFailedWords', () => {
   it.each([
-    [new TypeError('x'), 'NETWORK'], [new Error('Network request failed'), 'NETWORK'], [new Error('Failed to fetch'), 'NETWORK'],
+    [new TypeError('Network request failed'), 'NETWORK'], [new TypeError('x'), 'UNKNOWN'], [new Error('Network request failed'), 'NETWORK'], [new Error('Failed to fetch'), 'NETWORK'],
     [new Error('timed out'), 'NETWORK'], [new Error('Load failed'), 'NETWORK'], [new Error('The user aborted a request'), 'NETWORK'],
     [{ code: 'PGRST301', message: 'x' }, 'AUTH'], [{ code: 'PGRST302' }, 'AUTH'], [new Error('JWT expired'), 'AUTH'],
     [new Error('weird'), 'UNKNOWN'], ['text', 'UNKNOWN'], [null, 'UNKNOWN'], [undefined, 'UNKNOWN'],
@@ -144,7 +144,7 @@ describe('AK-13 classifyError, loadFailure and loadFailedWords', () => {
     expect(classifyError({ code: '23514', message: 'x' })).toBe('23514');
   });
   it('loadFailure is network or other', () => {
-    expect(loadFailure(new TypeError('x'))).toBe('network');
+    expect(loadFailure(new TypeError('Failed to fetch'))).toBe('network');
     expect(loadFailure(new Error('weird'))).toBe('other');
   });
   it('words for no signal and for something else, with an optional name to call and an optional reassurance', () => {
@@ -153,5 +153,81 @@ describe('AK-13 classifyError, loadFailure and loadFailedWords', () => {
     expect(loadFailedWords('other', { helper: 'Sam' }).line).toBe('Tap Try again, or call Sam.');
     expect(loadFailedWords('network', { reassure: 'Your things are safe.' }).line).toBe('Your things are safe. Check your Wi-Fi or signal, then tap Try again.');
     expect(loadFailedWords('other', { helper: '  ' }).line).toBe('Tap Try again.');
+  });
+});
+
+describe('AK-10..AK-13 review round (PS-R1..R9)', () => {
+  const ms = (f: () => void) => { const t = Date.now(); f(); return Date.now() - t; };
+  it.each([
+    ['a long message', 'x '.repeat(100000)],
+    ['dots and an extension', `${'a.'.repeat(30000)}jpg`],
+    ['dashes and an extension', `${'a-'.repeat(30000)}.jpg`],
+    ['an email start', `x@${'a-'.repeat(30000)}`],
+    ['digits', '1'.repeat(50000)],
+  ])('PS-R1 %s of 100k characters is cleaned in well under a second', (_n, raw) => {
+    expect(ms(() => safeMessage(raw))).toBeLessThan(300);
+  });
+  it('PS-R1 a private word past the first 1000 characters never survives either', () => {
+    const out = safeMessage(`${'y'.repeat(3000)} SECRETWORD`, ['SECRETWORD']);
+    expect(out).not.toContain('SECRETWORD');
+  });
+  it.each([
+    ['Authorization: Bearer abcdef123', 'abcdef123'], ['Bearer abc123def', 'abc123def'], ['password is hunter2', 'hunter2'], ['password: hunter2 extra', 'hunter2'],
+  ])('PS-R2 %j leaves no secret', (raw, secret) => { expect(safeMessage(raw)).not.toContain(secret); });
+  it.each([
+    ['C:\\Users\\Betty\\Pictures\\x.png', 'Betty'], ['see www.example.com/photo?id=3', 'example'], ['\\\\server\\share\\Betty', 'Betty'],
+  ])('PS-R3 %j leaves no path or host', (raw, leak) => { expect(safeMessage(raw)).not.toContain(leak); });
+  it.each(['192.168.1.20', '10.0.0.1', '2001:db8::ff00:42:8329'])('PS-R4 the address %s is fully hidden', (ip) => {
+    const out = safeMessage(`cannot reach ${ip} now`);
+    expect(out).not.toMatch(/192|168|\.1\.20|10\.0|db8|8329/);
+  });
+  it.each([['555-1234', '555'], ['+44 7700 900123', '7700'], ['bob@localhost', 'bob']])('PS-R5 %j is hidden', (raw, leak) => {
+    expect(safeMessage(raw)).not.toContain(leak);
+  });
+  it('PS-R6 an unterminated quote is cut, and a private word matches across changed whitespace and case', () => {
+    expect(safeMessage('failed: "Betty\'s caption goes on')).not.toContain('caption');
+    expect(safeMessage('Mia   at\nthe PARK was sent', ['Mia at the park'])).not.toMatch(/park/i);
+  });
+  it('nit: ordinary prose with Make or Model is kept; a metadata tag is still dropped', () => {
+    expect(safeMessage('Make sure the network works')).toBe('Make sure the network works');
+    expect(safeMessage('Model not found')).toBe('Model not found');
+    expect(safeMessage('upload failed Make: Apple Model: iPhone')).not.toMatch(/Apple|iPhone/);
+  });
+  it.each([
+    'post/8f3a1c2e-1111-2222-3333-444455556666', 'person/Betty-Smith-123456', '304/555/1234', 'a1b2c3d4e5f6a7b8',
+  ])('PS-R7 the screen %s is not kept', (s) => {
+    expect(buildErrorReport(new Error('x'), s, { appVersion: '1.0.0', os: 'ios 18' }).screen).toBe('unknown');
+  });
+  it('PS-R7 route templates are kept, and appVersion and os that are not plain are blanked', () => {
+    expect(buildErrorReport(new Error('x'), 'post/[id]', { appVersion: '1.0.0', os: 'ios 18' }).screen).toBe('post/[id]');
+    const r = buildErrorReport(new Error('x'), 'home', { appVersion: 'Betty phone 3045550100', os: 'ios 18 /Users/Betty' });
+    expect(r.appVersion).toBe('unknown');
+    expect(r.os).toBe('unknown');
+  });
+  it('PS-R8 a ref that is not a plain id is dropped', () => {
+    const log = createProblemLog({ enabled: () => true, appVersion: '1', platform: () => 'ios', runtime: '58', title: 't' });
+    log.record(new Error('x'), 'w', { ref: 'Betty at 123 Main Street' });
+    log.record(new Error('x'), 'w', { ref: 'job-1' });
+    expect(log.list().map((e) => e.ref)).toEqual(['job-1', undefined]);
+  });
+  it('PS-R9 nothing the log or report does can throw, even for hostile errors and listeners', () => {
+    const log = createProblemLog({ enabled: () => { throw new Error('no'); }, appVersion: '1', platform: () => 'ios', runtime: '58', title: 't' });
+    expect(() => log.record(new Error('x'), 'w')).not.toThrow();
+    const on = createProblemLog({ enabled: () => true, appVersion: '1', platform: () => 'ios', runtime: '58', title: 't' });
+    on.subscribe(() => { throw new Error('listener'); });
+    expect(() => { on.record(new Error('x'), 'w'); on.clear(); }).not.toThrow();
+    const evil = { get name(): string { throw new Error('x'); }, get code(): string { throw new Error('x'); }, get message(): string { throw new Error('x'); } };
+    expect(() => buildErrorReport(evil, 'home', { appVersion: '1', os: 'ios' })).not.toThrow();
+    expect(() => classifyError(evil)).not.toThrow();
+    expect(() => on.record(evil, 'w')).not.toThrow();
+    expect(classifyError({ message: { toString() { throw new Error('x'); } } })).toBe('UNKNOWN');
+  });
+  it('a plain object with a message (a database error) keeps its message in the log, and a coding TypeError is not "no signal"', () => {
+    const log = createProblemLog({ enabled: () => true, appVersion: '1', platform: () => 'ios', runtime: '58', title: 't' });
+    log.record({ message: 'relation missing', code: 'PGRST200' }, 'w');
+    expect(log.list()[0]).toMatchObject({ message: 'relation missing', code: 'PGRST200' });
+    expect(classifyError(new TypeError("Cannot read properties of undefined (reading 'x')"))).toBe('UNKNOWN');
+    expect(classifyError(new TypeError('Network request failed'))).toBe('NETWORK');
+    expect(classifyError(new TypeError('Failed to fetch'))).toBe('NETWORK');
   });
 });

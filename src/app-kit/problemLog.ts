@@ -41,6 +41,14 @@ const MAX = 20;
 const WHERE = /^[A-Za-z0-9_ :/[\]-]{1,40}$/;
 const CODE = /^[A-Za-z0-9_]{1,20}$/;
 const ID = /^[0-9a-f-]{8,64}$/i;
+const REF = /^[A-Za-z0-9_-]{1,40}$/;
+
+/** The text of an error, a string, or a plain object's `message`. */
+function messageOf(e: unknown): string {
+  if (typeof e === 'string') return e;
+  const m = (e as { message?: unknown } | null)?.message;
+  return typeof m === 'string' ? m : '';
+}
 
 function errorName(e: unknown): string {
   const n = e instanceof Error ? e.name : '';
@@ -50,7 +58,7 @@ function errorName(e: unknown): string {
 export function createProblemLog(o: ProblemLogOptions) {
   let log: ProblemEntry[] = [];
   const listeners = new Set<() => void>();
-  const notify = () => listeners.forEach((f) => f());
+  const notify = () => listeners.forEach((f) => { try { f(); } catch { /* a listener must not break the log */ } });
 
   function updateId(): string {
     try { const id = o.updateId?.(); return typeof id === 'string' && ID.test(id) ? id : 'none'; } catch { return 'none'; }
@@ -59,8 +67,8 @@ export function createProblemLog(o: ProblemLogOptions) {
   return {
     /** Never throws: the log must not cause a second problem. */
     record(e: unknown, where: string, opts: { scrub?: (string | null | undefined)[]; ref?: string } = {}): void {
-      if (!o.enabled()) return;
       try {
+        if (!o.enabled()) return;
         const own = (e as { code?: unknown } | null)?.code;
         const kind = classifyError(e);
         const c = o.classify ? o.classify(e) : { code: typeof own === 'string' && CODE.test(own) ? own : e instanceof Error ? errorName(e) : kind, retryable: kind === 'NETWORK' };
@@ -69,13 +77,13 @@ export function createProblemLog(o: ProblemLogOptions) {
           where: WHERE.test(where) ? where : 'unknown',
           code: CODE.test(c.code) ? c.code : 'Error',
           retryable: c.retryable,
-          message: safeMessage(e instanceof Error ? e.message : typeof e === 'string' ? e : '', opts.scrub),
+          message: safeMessage(messageOf(e), opts.scrub),
           appVersion: o.appVersion,
           updateId: updateId(),
           platform: o.platform(),
           runtime: o.runtime,
         };
-        if (opts.ref) entry.ref = opts.ref;
+        if (opts.ref && REF.test(opts.ref)) entry.ref = opts.ref;
         log = [entry, ...log].slice(0, MAX);
         notify();
       } catch {
