@@ -21,7 +21,7 @@ export const EasyView = { render, globals: EASY };
 export const LongContent = {
   render: () => (
     <BottomSheet testID="sheet" label="Many options" onClose={noop}>
-      {Array.from({ length: 20 }, (_v, i) => <MenuRow key={i} text={`Option ${i + 1}`} icon={{ sf: 'circle', md: 'circle' }} onPress={noop} />)}
+      {Array.from({ length: 20 }, (_v, i) => <MenuRow key={i} text={`Option ${i + 1}`} icon={{ sf: 'star', md: 'star' }} onPress={noop} />)}
     </BottomSheet>
   ),
   globals: EASY,
