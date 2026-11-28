@@ -9,3 +9,6 @@ export { haptic, type HapticKind } from './haptics';
 export { readBytes } from './bytes';
 export { fromBase64, toBase64 } from './base64';
 export { randomBytes } from './random';
+export { createFileFolder, type FolderStore } from './fileFolder';
+export { createBlobUrls, type BlobUrls } from './blobUrls';
+export { createSaveToPhone, type MediaLibraryLike, type SaveResult } from './saveToPhone';
