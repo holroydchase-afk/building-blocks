@@ -195,6 +195,16 @@ export const SPACE = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 } as const;
 /** Corners: small (checkbox, quiet field), medium (rows, cards, choices, notices, fields), photo (large media tiles),
  *  pill (capsules, chips, avatars). */
 export const RADIUS = { small: 4, medium: 12, photo: 16, pill: 999 } as const;
+/** One soft warm shadow under a picture tile, light mode only (none in dark). Put it on a wrapper around the tile, so the
+ *  tile's own corners clip the picture and the shadow is not clipped with it. The colour is `ink` (#RRGGBB, default a
+ *  warm near-black) at 10%, 2 pt down, 12 pt blur. `boxShadow` works on iPhone, Android and the web. */
+export function photoShadow(dark: boolean, ink = '#1E1B17'): { boxShadow: string } | null {
+  if (dark) return null;
+  const m = /^#([0-9a-f]{6})$/i.exec(ink) ?? /^#([0-9a-f]{6})$/i.exec('#1E1B17');
+  const n = parseInt(m![1]!, 16);
+  return { boxShadow: `0px 2px 12px rgba(${n >> 16}, ${(n >> 8) & 255}, ${n & 255}, 0.1)` };
+}
+
 /** The one exception: dialogs keep each phone's own corner (iOS alert 14 pt, Material 3 dialog 28 dp). */
 export function dialogRadius(os: OS): number {
   return os === 'android' ? 28 : 14;
