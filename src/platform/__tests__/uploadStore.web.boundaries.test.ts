@@ -6,7 +6,6 @@
 // Jest uses an injected Map fake for IndexedDB. Moved over from the app it was first built in, with its words turned into
 // options (the kept test, the cleanliness check, the scheme). Written first (red) by qa-tdd, 2026-11-28.
 import * as mod from '../uploadStore.web';
-import { createSecureSessionStorage } from '../secureSession.web';
 
 interface Prepared { spec: unknown; display: Uint8Array; thumb: Uint8Array }
 interface QueueItem { uri: string; kind: 'image' | 'clip'; durationMs?: number }
@@ -77,7 +76,6 @@ function prep(scan = 400): Prepared {
   return { spec: { kind: 'image', mime_type: 'image/jpeg', width: 2048, height: 1536, duration_ms: null, byte_size: display.length + 28, thumb_byte_size: thumb.length + 28, exif_stripped: true }, display, thumb };
 }
 const photo = (n: number): QueueItem => ({ uri: `blob:http://127.0.0.1/${n}`, kind: 'image' });
-const has = hasBytes;
 
 function setup(extra: Partial<Opts> = {}, dbOpts: Parameters<typeof mapDb>[0] = {}) {
   const db = mapDb(dbOpts);
