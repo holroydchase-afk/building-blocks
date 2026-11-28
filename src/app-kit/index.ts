@@ -8,3 +8,6 @@ export { buildErrorReport, describeOs, type ErrorReport } from './errorReport';
 export { classifyError, loadFailedWords, loadFailure, type LoadFailure } from './errors';
 export { createProblemLog, type ProblemEntry, type ProblemLogOptions } from './problemLog';
 export { hasPhone, safeMessage, scrubPhone } from './scrub';
+export { createLastSeen, type LastSeen } from './lastSeen';
+export { createPrefs, pickBoolean, pickOneOf, type Prefs, type PrefsOptions } from './prefs';
+export { chainClears, chooseRuntime } from './runtime';
