@@ -33,7 +33,10 @@ const signOutClear = chainClears(sessionStore.clear, uploads?.wipe);      // run
 - `createPrefs` hands `sanitize` only a parsed object (never null, an array or a number); everything else gives the defaults. Pick each field with `pickBoolean` and `pickOneOf` so a wrong type or an unknown choice falls back field by field.
 - `save` writes exactly `JSON.stringify(value)`, so keep only plain choices in it.
 - `chooseRuntime` builds the fake when `fake` is true; otherwise any text from `missing` (even empty) becomes the error and the real one is never built. Error text from a thrown maker is never passed on.
-- `chainClears` skips anything that is not a function and goes on after a step that fails.
+- `chainClears` skips anything that is not a function, goes on after a step that fails, and resolves to the number of steps that failed (0 when all went well).
+- `createLastSeen` keeps only ISO dates (`2026-11-28` or a full time) and returns them normalized; anything else, like `"1"` or `"2026"`, reads as no visit and is not saved.
+- Prefs are for non-secret choices only. Keys are joined as-is, so do not let a scope contain the separator.
+- A failed save is silent: there is no signal, the next open just uses the older value.
 
 ## Do and don't
 **Do** keep a version in the key prefix (`.v1`) so a changed shape can start fresh.

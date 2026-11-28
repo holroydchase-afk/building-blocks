@@ -14,12 +14,14 @@ export function chooseRuntime<D>(o: { fake: boolean; makeFake: () => D; makeReal
   }
 }
 
-/** One function that runs the defined steps in order, goes on after a step fails, and never rejects. */
-export function chainClears(...steps: Array<(() => Promise<void>) | undefined>): () => Promise<void> {
+/** One function that runs the defined steps in order, goes on after a step fails, and never rejects. Resolves to how many steps failed (0 when all went well). */
+export function chainClears(...steps: Array<(() => Promise<void>) | undefined>): () => Promise<number> {
   return async () => {
+    let failed = 0;
     for (const step of steps) {
       if (typeof step !== 'function') continue;
-      try { await step(); } catch { /* one failed clear must not stop the rest */ }
+      try { await step(); } catch { failed += 1; /* one failed clear must not stop the rest */ }
     }
+    return failed;
   };
 }

@@ -11,12 +11,15 @@ export type ObjectStore = {
   clear(): Promise<void>;
 };
 
-type SetItem = { setItem(k: string, v: string): void };
+type SetItem = { setItem(k: string, v: string): void; removeItem?(k: string): void };
 
 // Inline bytes waiting for the store stay well under a 5 MB cap (characters; 2 bytes each).
 const INLINE_MAX = 1_000_000;
 
-/** IndexedDB behind ObjectStore; undefined when there is none. Opens lazily on the first call. */
+/**
+ * IndexedDB behind ObjectStore; undefined when there is none. Opens lazily on the first call and reopens after the
+ * browser closes the connection. `store` must be the same for a given `name`, and the db version is fixed at 1.
+ */
 export function idbObjects(o: { name: string; store?: string; idb?: IDBFactory }): ObjectStore | undefined {
   const idb = o.idb ?? (globalThis as { indexedDB?: IDBFactory }).indexedDB;
   if (!idb) return undefined;
@@ -27,7 +30,13 @@ export function idbObjects(o: { name: string; store?: string; idb?: IDBFactory }
       db = new Promise<IDBDatabase>((res, rej) => {
         const r = idb.open(o.name, 1);
         r.onupgradeneeded = () => { r.result.createObjectStore(storeName); };
-        r.onsuccess = () => res(r.result);
+        r.onsuccess = () => {
+          const d = r.result;
+          const drop = (): void => { db = undefined; }; // the next call reopens
+          d.onclose = drop;
+          d.onversionchange = () => { try { d.close(); } catch { /* already closed */ } drop(); };
+          res(d);
+        };
         r.onerror = () => rej(r.error);
         r.onblocked = () => rej(new Error('blocked'));
       });
@@ -59,8 +68,8 @@ export interface SplitSaver<S> {
   save(state: S): void;
   /** Keys already in the store (after a load), so they are not written again. */
   know(keys: string[]): void;
-  /** A fresh state: drop the old bytes first and forget which keys were stored. */
-  reset(): void;
+  /** A fresh state: forget the old state, drop the saved copy and the stored bytes. Resolves when the clear is done; never rejects. */
+  reset(): Promise<void>;
   flush(): Promise<void>;
 }
 
@@ -69,7 +78,7 @@ export interface SplitSaver<S> {
  * right after a change keeps it). A batch bigger than inlineMax waits for the store instead. Without a store, or once
  * it fails, the whole state is saved inline.
  */
-export function createSplitSaver<S extends { objects: Record<string, string> }>(o: { storage: SetItem; key: string; store?: ObjectStore; inlineMax?: number }): SplitSaver<S> {
+export function createSplitSaver<S extends { objects: Record<string, string> }>(o: { storage: SetItem; key: string; store?: ObjectStore; inlineMax?: number; onError?: (code: 'put' | 'clear' | 'write') => void }): SplitSaver<S> {
   const store = o.store;
   const inlineMax = o.inlineMax ?? INLINE_MAX;
   let stored = new Set<string>();
@@ -77,12 +86,15 @@ export function createSplitSaver<S extends { objects: Record<string, string> }>(
   let latest: S | undefined;
   let chain: Promise<void> = Promise.resolve();
   let inline = !store;
+  const report = (code: 'put' | 'clear' | 'write'): void => {
+    try { o.onError?.(code); } catch { /* a broken reporter changes nothing */ }
+  };
   const write = (): void => {
     if (!latest) return;
     try {
       const v = inline ? JSON.stringify(latest) : JSON.stringify({ ...latest, objects: Object.fromEntries(pending) });
       o.storage.setItem(o.key, v);
-    } catch { /* full or blocked: the next write tries again */ }
+    } catch { report('write'); /* full or blocked: the next write tries again */ }
   };
   return {
     save(s) {
@@ -106,14 +118,17 @@ export function createSplitSaver<S extends { objects: Record<string, string> }>(
           if (batch !== pending) return; // reset since: these bytes belong to the old state
           for (const [k] of fresh) { stored.add(k); pending.delete(k); }
           write();
-        }, () => { inline = true; write(); });
+        }, () => { report('put'); inline = true; write(); });
       } catch { /* never throws */ }
     },
     know(keys) { for (const k of keys) stored.add(k); },
     reset() {
       stored = new Set();
       pending = new Map();
-      chain = chain.then(() => store?.clear()).catch(() => undefined);
+      latest = undefined;
+      try { o.storage.removeItem?.(o.key); } catch { /* the clear below still runs */ }
+      chain = chain.then(() => store?.clear()).catch(() => { report('clear'); });
+      return chain;
     },
     flush: () => chain,
   };
