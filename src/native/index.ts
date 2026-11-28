@@ -12,6 +12,6 @@ export { IconProvider, type Icon, type IconOpts, type IconRender } from './IconP
 export { TAB_BAR_FLOAT_SPACE, TabBarSpaceContext, useTabBarSpace } from './tabBarSpace';
 export { SHOW_AGAIN_MS, useTyping, useTypingField } from './typing';
 export {
-  AlertDialog, BackButton, BottomSheet, Button, Card, Choice, Field, GroupedSection, IconButton, Loading, MenuLine, MenuRow, Notice, Screen, Txt,
+  AddCard, AddTile, AlertDialog, AvatarTile, BackButton, BottomSheet, Button, Card, Choice, DateStamp, Field, GroupedSection, IconButton, Loading, MenuLine, MenuRow, Notice, Screen, Txt,
   type ButtonVariant, type TxtTone,
 } from './kit';

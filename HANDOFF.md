@@ -3,12 +3,13 @@
 stage: review
 goal: building-blocks
 milestone: CL-M1
-now: PRs 1-3 merged (/native, /platform, sealed web session, /app-kit first pieces); PR 8 open: BackButton, MenuLine and Field underline (472 tests, lint, types, Storybook green; review round 1 fixed)
+now: PRs 1-3 and 8 merged; PR open: tiles (AvatarTile, AddTile, AddCard, DateStamp). Queue: bottom drawer (generic slide-up drawer from Hearth's demo drawer, PR 230, no demo content; Chase Nov 27), photo look helpers, media and upload platform pieces, runtime/error patterns, then Hearth imports
 next: tiles (FaceTile, AddTile, AddPhotoCard, PostcardStamp) and photo look helpers, then media and upload platform pieces, then runtime and fake-runtime pattern, error messages, problem log, error report; then Hearth's import PRs after a re-diff
 waiting_on_chase: []
 blockers: []
 -->
 ## Done
+- AvatarTile, AddTile, AddCard, DateStamp (CL-24..CL-27) moved over from Hearth's FaceTile, AddTile, AddPhotoCard, PostcardStamp, with product words turned into props (2026-11-28).
 - Security CI (intake #7): gitleaks full-history scan, npm audit (prod, high+), CodeQL; every Action pinned to a commit SHA (2026-11-27). Dependency review stays off until the repo's dependency graph is on. React Native a11y lint rules not added: eslint-plugin-react-native-a11y 3.5.1 peers ESLint 3-8, repo is on 9; the 48 pt, label and text-scale contract stays covered by tests and the Storybook a11y addon.
 - BackButton, MenuLine and Field `underline` (CL-21..CL-23; `strongLine` dropped, the strong rule is the only one) moved over from Hearth with docs and stories (2026-11-27).
 - `/app-kit`: format, ErrorBoundary, createNavContext (PR #3, merged).
