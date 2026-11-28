@@ -54,6 +54,8 @@ export interface UploadStoreOptions<Item extends QueuedItem> {
   verify: (bytes: Uint8Array) => void;
   /** The start of a kept item's uri (default `q:`); pick one that cannot be a real address. */
   scheme?: string;
+  /** The start of the name each sealed part is bound to (default `q.`). Give each store on one origin its own. */
+  sealPrefix?: string;
   /** A fresh id for each stage (default crypto.randomUUID). */
   newId?: () => string;
 }

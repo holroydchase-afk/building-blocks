@@ -344,3 +344,89 @@ describe('PL-23 indexedDbUploadDb and the phone twin', () => {
     expect(native.createUploadStore({ db: mapDb(), sealer: xorSealer(), report: () => {}, keeps: () => true, verify: () => {} })).toBeNull();
   });
 });
+
+describe('PL-23 review round (PS-R1..R6)', () => {
+  it('PS-R1 wipe() first, then the sealer\'s clear(): a seal already in flight mints no new key and nothing stays', async () => {
+    const handed: CryptoKey[] = [];
+    let kept: CryptoKey | null = null;
+    const keys = { get: async () => kept, put: async (k: CryptoKey) => { kept = k; handed.push(k); }, delete: async () => { kept = null; } };
+    const sealer = createSecureSessionStorage({ keys });
+    await sealer.sealBytes('warm', new Uint8Array(8));
+    const db = mapDb();
+    const store = create({ db, sealer, report: () => {} });
+    const staging = store.stage([photo(1), photo(2)], async () => prep()).catch(() => undefined);
+    await new Promise((r) => setTimeout(r, 0));
+    const wiped = store.wipe(); // the generation moves at once, before the next seal is asked for
+    await sealer.clear();
+    await wiped;
+    await staging;
+    expect(db.m.size).toBe(0);
+    expect(handed).toHaveLength(1);
+    expect(kept).toBeNull();
+  });
+
+  it('PS-R2 a sign-out landing while a failed stage clears its records leaves nothing in memory', async () => {
+    const db = mapDb({ putFails: () => new Error('blocked') });
+    let release!: () => void;
+    const gate = new Promise<void>((r) => { release = r; });
+    db.delete = async () => { await gate; };
+    const store = create({ db, sealer: xorSealer(), report: () => {} });
+    const staging = store.stage([photo(1)], async () => prep()).catch((e) => e);
+    await new Promise((r) => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
+    const wiped = store.wipe();
+    release();
+    await wiped;
+    const out = await staging;
+    expect(out).toBeInstanceOf(Error);
+    expect(String((out as Error).message)).toMatch(/signed out/);
+    expect(await store.has('test-q:x/0')).toBe(false);
+  });
+
+  it('PS-R3 two stages together scan once and a failed scan does not inflate the used bytes', async () => {
+    const db = mapDb();
+    const sealer = xorSealer();
+    const store0 = create({ db, sealer, report: () => {} });
+    await store0.stage([photo(1)], async () => prep());
+    let calls = 0;
+    const real = db.keys;
+    db.keys = async () => { calls++; return real(); };
+    const store = create({ db, sealer, report: () => {} });
+    await Promise.all([store.stage([photo(2)], async () => prep()), store.stage([photo(3)], async () => prep())]);
+    expect(calls).toBe(1);
+    // a scan that fails after counting one record, then succeeds, does not double count: the cap still fits exactly two posts
+    const one = prep();
+    const per = (one.display.length + 28) + (one.thumb.length + 28) + (new TextEncoder().encode(JSON.stringify(one.spec)).length + 28);
+    const db2 = mapDb();
+    const warm = create({ db: db2, sealer, report: () => {} });
+    await warm.stage([photo(1)], async () => one);
+    let fail = true;
+    const g = db2.get;
+    db2.get = async (k) => { const r = await g(k); if (fail) { fail = false; throw new Error('blocked'); } return r; };
+    const reports: string[] = [];
+    const s2 = create({ db: db2, sealer, report: (c) => reports.push(c), capBytes: per * 2 + 10 });
+    const a = await s2.stage([photo(2)], async () => one); // the scan fails: memory only
+    const b = await s2.stage([photo(3)], async () => one); // the scan works: one stored + this one fits under the cap
+    expect(a.durable).toBe(false);
+    expect(b.durable).toBe(true);
+  });
+
+  it('PS-R3 the cap holds when two stages run together', async () => {
+    const one = prep(2000);
+    const { store, db } = setup({ capBytes: (one.display.length + one.thumb.length) * 1 + 400 });
+    const [a, b] = await Promise.all([store.stage([photo(1)], async () => one), store.stage([photo(2)], async () => one)]);
+    expect([a.durable, b.durable].filter(Boolean)).toHaveLength(1);
+    expect(db.m.size).toBe(1);
+  });
+
+  it('PS-R6 the sealed-name prefix is an option, so two stores on one origin do not share names', async () => {
+    const sealer = xorSealer();
+    const db = mapDb();
+    const store = (mod as unknown as { createUploadStore: (o: unknown) => Store }).createUploadStore({
+      db, sealer, report: () => {}, keeps: (i: QueueItem) => i.kind === 'image', verify, scheme: SCHEME, sealPrefix: 'app2.' });
+    const r = await store.stage([photo(1)], async () => prep());
+    const key = r.items[0]!.uri.slice(SCHEME.length);
+    expect(sealer.names.sort()).toEqual(['display', 'spec', 'thumb'].map((k) => `app2.${key}/${k}`));
+    expect(await store.open(r.items[0]!.uri)).not.toBeNull();
+  });
+});

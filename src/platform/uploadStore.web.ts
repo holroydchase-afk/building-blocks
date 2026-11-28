@@ -14,6 +14,7 @@ export type { ByteSealer, Prepared, QueuedItem, UploadDb, UploadRecord, UploadSt
 const OS_NAME = 'items';
 const DEFAULT_DB_NAME = 'uploads';
 const DEFAULT_SCHEME = 'q:';
+const DEFAULT_SEAL_PREFIX = 'q.';
 const DEFAULT_CAP = 150 * 1024 * 1024;
 
 const enc = new TextEncoder();
@@ -27,6 +28,7 @@ export function createUploadStore<Item extends QueuedItem, P extends Prepared>(o
   const cap = o.capBytes ?? DEFAULT_CAP;
   const SCHEME = o.scheme ?? DEFAULT_SCHEME;
   const newId = o.newId ?? randomId;
+  const SEAL = o.sealPrefix ?? DEFAULT_SEAL_PREFIX;
   const keyOf = (uri: string) => (uri.startsWith(SCHEME) ? uri.slice(SCHEME.length) : null);
   /** Items of posts that could not be saved this visit, by key. */
   const mem = new Map<string, P>();
@@ -37,17 +39,31 @@ export function createUploadStore<Item extends QueuedItem, P extends Prepared>(o
   /** PRIV-WEB3-R1: bumped by wipe() (sign-out). A stage or put that started under an older one writes nothing and seals nothing. */
   let gen = 0;
 
-  async function scan(g: number): Promise<void> {
-    if (scanned) return;
-    const ks = await db.keys();
-    for (const k of ks) {
-      if (g !== gen) throw 'gone';
-      const r = await db.get(k);
-      if (g !== gen) throw 'gone';
-      if (r) { const n = recBytes(r); sizes.set(k, n); used += n; }
-    }
-    if (g !== gen) throw 'gone';
-    scanned = true; // only after a whole read, so a blocked first try is retried
+  /** One scan at a time, shared by stages that start together. */
+  let scanP: Promise<void> | undefined;
+  function scan(g: number): Promise<void> {
+    if (scanned) return Promise.resolve();
+    const self: { p?: Promise<void> } = {};
+    const p: Promise<void> = scanP ??= (async () => {
+      try {
+        const ks = await db.keys();
+        for (const k of ks) {
+          if (g !== gen) throw 'gone';
+          const r = await db.get(k);
+          if (g !== gen) throw 'gone';
+          if (r) { const n = recBytes(r); sizes.set(k, n); used += n; }
+        }
+        if (g !== gen) throw 'gone';
+        scanned = true; // only after a whole read, so a blocked first try is retried
+      } catch (e) {
+        if (g === gen) { sizes.clear(); used = 0; } // a half read must not be counted twice by the retry
+        throw e;
+      } finally {
+        if (scanP === self.p) scanP = undefined;
+      }
+    })();
+    self.p = p;
+    return p;
   }
 
   async function drop(key: string): Promise<void> {
@@ -63,7 +79,7 @@ export function createUploadStore<Item extends QueuedItem, P extends Prepared>(o
     const sealed: Record<string, Uint8Array> = {};
     for (const [name, bytes] of parts) {
       if (g !== gen) throw 'gone'; // sign-out landed: never ask the sealer (it would mint a fresh key)
-      const s = await sealer.sealBytes(`q.${key}/${name}`, bytes);
+      const s = await sealer.sealBytes(`${SEAL}${key}/${name}`, bytes);
       if (g !== gen) throw 'gone';
       if (!s) throw 'blocked';
       sealed[name] = s;
@@ -72,10 +88,11 @@ export function createUploadStore<Item extends QueuedItem, P extends Prepared>(o
     const n = recBytes(rec);
     if (used + n > cap) throw 'full';
     if (g !== gen) throw 'gone';
-    try { await db.put(key, rec); } catch (e) { throw isQuota(e) ? 'full' : 'blocked'; }
-    if (g !== gen) { try { await db.delete(key); } catch { /* blocked */ } throw 'gone'; }
+    used += n; // reserved before the write, so two stages together cannot both pass the cap
     sizes.set(key, n);
-    used += n;
+    const undo = () => { if (sizes.delete(key) && g === gen) used -= n; };
+    try { await db.put(key, rec); } catch (e) { undo(); throw isQuota(e) ? 'full' : 'blocked'; }
+    if (g !== gen) { try { await db.delete(key); } catch { /* blocked */ } throw 'gone'; }
   }
 
   return {
@@ -110,6 +127,7 @@ export function createUploadStore<Item extends QueuedItem, P extends Prepared>(o
         }
         durable = false;
         for (const r of ready) await drop(r.key); // all or nothing: a half-saved post would fail at the next open
+        if (g !== gen) throw new Error('signed out'); // a sign-out landed while records were being dropped: keep nothing in memory
         try { o.report(why === 'full' ? 'upload_store_full' : 'upload_store_blocked'); } catch { /* reporting never blocks */ }
         for (const r of ready) mem.set(r.key, r.p);
       }
@@ -125,7 +143,7 @@ export function createUploadStore<Item extends QueuedItem, P extends Prepared>(o
         const rec = await db.get(key);
         if (!rec || rec.v !== 1) return null;
         const [display, thumb, spec] = await Promise.all([
-          sealer.openBytes(`q.${key}/display`, rec.display), sealer.openBytes(`q.${key}/thumb`, rec.thumb), sealer.openBytes(`q.${key}/spec`, rec.spec)]);
+          sealer.openBytes(`${SEAL}${key}/display`, rec.display), sealer.openBytes(`${SEAL}${key}/thumb`, rec.thumb), sealer.openBytes(`${SEAL}${key}/spec`, rec.spec)]);
         if (!display || !thumb || !spec) return null;
         o.verify(display); // a record from an old build or a tampered one fails closed
         o.verify(thumb);
@@ -142,7 +160,7 @@ export function createUploadStore<Item extends QueuedItem, P extends Prepared>(o
       try {
         const rec = await db.get(key);
         // The spec must open too: with the key gone (cleared site data) the post can't be sent, so it isn't "there".
-        return !!rec && !!(await sealer.openBytes(`q.${key}/spec`, rec.spec));
+        return !!rec && !!(await sealer.openBytes(`${SEAL}${key}/spec`, rec.spec));
       } catch {
         return false;
       }
@@ -167,6 +185,7 @@ export function createUploadStore<Item extends QueuedItem, P extends Prepared>(o
       sizes.clear();
       used = 0;
       scanned = false;
+      scanP = undefined;
       try { await db.wipe(); } catch { /* blocked: the key is deleted at sign-out too, so leftovers can't be opened */ }
     },
   };
