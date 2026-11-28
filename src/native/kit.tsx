@@ -5,7 +5,7 @@
 // 48 pt minimum target.
 import React, { useMemo, useState, type ReactNode } from 'react';
 import {
-  ActivityIndicator, Modal, PanResponder, Pressable, type PanResponderCallbacks, ScrollView, StyleSheet, Switch, Text, TextInput, View,
+  ActivityIndicator, Animated, Modal, PanResponder, Pressable, type PanResponderCallbacks, ScrollView, StyleSheet, Switch, Text, TextInput, View, Platform,
   useWindowDimensions, type StyleProp, type TextInputProps, type TextStyle, type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -206,6 +206,116 @@ export function MenuLine() {
   const { c } = useTheme();
   const { fontScale } = useWindowDimensions(); // the icon grows with the text size, so the inset does too
   return <View testID="menu-line" style={[styles.menuLine, { marginLeft: iconSize(26, fontScale) + 14, backgroundColor: c.line }]} />;
+}
+
+const plural = (n: number, [one, many]: readonly [string, string]) => `${n} ${n === 1 ? one : many}`;
+const initialOf = (name: string) => (name.trim().split(/\s+/).pop() ?? '?').charAt(0).toUpperCase() || '?';
+/** On the web a word wider than its box would spill out; phones already break it. */
+const breakLongWords = (Platform.OS === 'web' ? { overflowWrap: 'anywhere' } : {}) as TextStyle;
+
+/** One choosable tile for a group of people: a pill of up to 3 avatars (initials), the group's whole name and its
+ *  count in words. Picked is an accent edge, a tint and a check, and is also in its spoken name ("..., picked"). */
+export function AvatarTile({ name, count, avatars, picked, onPress, across, unit = ['person', 'people'] }: {
+  name: string; count: number; avatars: string[]; picked: boolean; onPress: () => void;
+  /** How many tiles share a row (sets the width). */
+  across: number;
+  /** The count's word, singular and plural. */
+  unit?: readonly [string, string];
+}) {
+  const { c, os, easyView, text: type } = useTheme();
+  const edge = picked ? 3 : 2;
+  const words = plural(count, unit);
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`${name}, ${words}, ${picked ? 'picked' : 'not picked'}`}
+      accessibilityState={{ selected: picked }}
+      aria-pressed={picked}
+      onPress={onPress}
+      android_ripple={{ color: c.line }}
+      style={({ pressed }) => [styles.tile, { width: `${(100 / across).toFixed(3)}%` as `${number}%`, opacity: pressed && os !== 'android' ? 0.7 : 1 }]}
+    >
+      <View style={[styles.tileRing, { borderWidth: edge, borderColor: picked ? c.accent : c.tabLine, backgroundColor: picked ? c.accentSoft : c.bg, paddingVertical: 12 - edge }]}>
+        <View style={styles.tileStack}>
+          {avatars.slice(0, 3).map((a, i) => (
+            <View key={`${a}-${i}`} style={[styles.tileDot, i ? styles.tileOverlap : null, { backgroundColor: c.line, borderColor: c.bg }]}>
+              <Text maxFontSizeMultiplier={LABEL_SCALE_CAP} style={[type('headline'), { color: c.ink }]}>{initialOf(a)}</Text>
+            </View>
+          ))}
+        </View>
+        {picked ? (
+          <View style={[styles.tileTick, { backgroundColor: c.accent, borderColor: c.bg }]}>
+            <SystemIcon icon={{ sf: 'checkmark', md: 'check' }} color={c.accentInk} size={16} />
+          </View>
+        ) : null}
+      </View>
+      {/* The whole name, never cut; a word too long even for a narrow tile breaks rather than spills out. */}
+      <Text style={[type('headline'), styles.tileName, { color: c.ink }, breakLongWords]}>{name}</Text>
+      <Text testID="tile-count" style={[type(easyView ? 'body' : 'subheadline'), styles.centerText, { color: c.muted }]}>{words}</Text>
+    </Pressable>
+  );
+}
+
+/** An outlined "add" tile beside small items: a dashed edge and no fill, with the plus and the word in the accent. */
+export function AddTile({ label, text = 'Add', onPress }: { label: string; text?: string; onPress: () => void }) {
+  const { c, text: type } = useTheme();
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress}
+      style={({ pressed }) => [styles.addTile, { borderColor: c.line, opacity: pressed ? 0.7 : 1 }]}>
+      <SystemIcon icon={{ sf: 'plus', md: 'add' }} color={c.accent} />
+      <Text maxFontSizeMultiplier={LABEL_SCALE_CAP} style={[type('headline'), { color: c.accent }]}>{text}</Text>
+    </Pressable>
+  );
+}
+
+/** An empty card that is one big button: a tap anywhere on it (the 4:3 tinted spot, the lines below, the padding) calls
+ *  `onPress`. A disc with `icon` and the `title` sit in the spot; `inSpot` rides in its corner and `children` go below
+ *  it. A press shrinks the card to 0.98 for 120 ms, unless the phone's Reduce Motion is on. No fixed height, so the
+ *  words never get cut at bigger text sizes. */
+export function AddCard({ label, title, icon, onPress, testID, spotTestID, cardStyle, inSpot, children }: {
+  label: string; title: string; icon: Icon; onPress: () => void; testID?: string; spotTestID?: string;
+  cardStyle?: StyleProp<ViewStyle>; inSpot?: ReactNode; children?: ReactNode;
+}) {
+  const { c, easyView, reduceMotion, text: type } = useTheme();
+  const disc = easyView ? 60 : 52;
+  const [scale] = useState(() => new Animated.Value(1));
+  const to = (toValue: number) => {
+    if (reduceMotion) return;
+    Animated.timing(scale, { toValue, duration: 120, useNativeDriver: Platform.OS !== 'web' }).start();
+  };
+  return (
+    <Animated.View style={{ transform: [{ scale }] }}>
+      <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} onPressIn={() => to(0.98)} onPressOut={() => to(1)} style={styles.addCard}>
+        <View testID={testID} style={[styles.addCardBody, cardStyle]}>
+          <View testID={spotTestID} style={[styles.spot, { backgroundColor: c.accentSoft }]}>
+            {/* A fixed symbol in a fixed disc: it does not grow with the text (the words do). */}
+            <View testID="add-card-disc" style={[styles.spotDisc, { width: disc, height: disc, borderRadius: disc / 2, backgroundColor: c.surface }]}>
+              <SystemIcon icon={icon} color={c.accent} size={disc / 2} />
+            </View>
+            <Text style={[type('headline'), styles.centerText, { color: c.accent }]}>{title}</Text>
+            {inSpot}
+          </View>
+          {children}
+        </View>
+      </Pressable>
+    </Animated.View>
+  );
+}
+
+const STAMP_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+/** A small decorative stamp for a card's top-right corner, marked with the month then the day. Not a control:
+ *  hidden from screen readers, and touches pass through it. */
+export function DateStamp({ date: given, testID = 'date-stamp' }: { date?: Date; testID?: string }) {
+  const { c, font } = useTheme();
+  const date = given ?? new Date();
+  const mark = [styles.stampMark, font('semibold'), { color: c.accent }];
+  return (
+    <View testID={testID} pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" aria-hidden
+      style={[styles.stamp, { borderColor: c.accent, backgroundColor: c.surface }]}>
+      <Text accessible={false} maxFontSizeMultiplier={LABEL_SCALE_CAP} style={mark}>{STAMP_MONTHS[date.getMonth()]}</Text>
+      <Text accessible={false} maxFontSizeMultiplier={LABEL_SCALE_CAP} style={mark}>{String(date.getDate())}</Text>
+    </View>
+  );
 }
 
 /** A whole-row checkbox, radio or switch: the full row is the 48 pt+ target, a plain grouped row like the phone's own
@@ -428,6 +538,21 @@ const styles = StyleSheet.create({
   field: { gap: 6 },
   back: { alignSelf: 'flex-start', minWidth: MIN_TARGET, flexDirection: 'row', alignItems: 'center', gap: SPACE.xs, paddingVertical: 10 },
   menuLine: { height: StyleSheet.hairlineWidth },
+  tile: { minHeight: MIN_TARGET, minWidth: MIN_TARGET, alignItems: 'center', gap: 4, paddingHorizontal: 4, paddingVertical: 6 },
+  tileRing: { alignSelf: 'stretch', minHeight: 64, borderRadius: RADIUS.pill, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6 },
+  tileOverlap: { marginLeft: -10 },
+  tileName: { alignSelf: 'stretch', textAlign: 'center' },
+  centerText: { textAlign: 'center' },
+  spotDisc: { alignItems: 'center', justifyContent: 'center' },
+  tileStack: { flexDirection: 'row', justifyContent: 'center' },
+  tileDot: { width: 36, height: 36, borderRadius: RADIUS.pill, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  tileTick: { position: 'absolute', top: -6, right: -4, width: 28, height: 28, borderRadius: RADIUS.pill, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  addTile: { minWidth: 64, minHeight: 64, borderRadius: RADIUS.medium, borderWidth: 2, borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6 },
+  addCard: { alignSelf: 'stretch', minHeight: MIN_TARGET },
+  addCardBody: { padding: 12 },
+  spot: { alignSelf: 'stretch', aspectRatio: 4 / 3, borderRadius: 14, alignItems: 'center', justifyContent: 'center', gap: 12, padding: 12 },
+  stamp: { position: 'absolute', top: 10, right: 10, minWidth: 44, minHeight: 52, paddingHorizontal: 4, transform: [{ rotate: '4deg' }], borderWidth: 2, borderStyle: 'dotted', borderRadius: RADIUS.small, alignItems: 'center', justifyContent: 'center' },
+  stampMark: { textAlign: 'center', fontSize: 17, lineHeight: 18 },
   input: { minHeight: 56, paddingHorizontal: 14, paddingVertical: SPACE.md },
   card: { padding: 14, gap: SPACE.md },
   screen: { padding: SPACE.lg, gap: SPACE.lg, paddingBottom: SPACE.xxl },
